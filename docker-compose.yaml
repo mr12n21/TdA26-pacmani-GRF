@@ -1,0 +1,83 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: tda_postgres_dev
+    environment:
+      POSTGRES_DB: coursesportal
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - dev_pg_data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  server:
+    build:
+      context: ./apps/server
+      dockerfile: Dockerfile
+    container_name: tda_backend
+    command: sh -c "/entrypoint-migrate.sh && sh start.sh"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/coursesportal?schema=public
+      PORT: 3000
+      JWT_SECRET: secretkey
+      JWT_EXPIRES_IN: 30d
+      CORS_ORIGIN: http://localhost
+    ports:
+      - "3000:3000"
+    volumes:
+      - dev_app_uploads:/usr/src/app/public/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health >/dev/null 2>&1 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    restart: on-failure
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: tda_frontend
+    environment:
+      PORT: 3001
+      HOST: 0.0.0.0
+      NODE_ENV: production
+      NUXT_PUBLIC_API_BASE: /api
+    ports:
+      - "3001:3001"
+    depends_on:
+      - server
+    restart: on-failure
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://0.0.0.0:3001/ >/dev/null 2>&1 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  caddy:
+    build: ./apps/caddy
+    container_name: tda_caddy
+    ports:
+      - "80:80"
+    depends_on:
+      web:
+        condition: service_healthy
+      server:
+        condition: service_healthy
+    restart: on-failure
+
+volumes:
+  dev_pg_data:
+  dev_app_uploads:

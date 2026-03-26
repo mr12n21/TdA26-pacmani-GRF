@@ -1,0 +1,241 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+  --font-sans: 'Dosis', 'Public Sans', sans-serif;
+
+  /* TdA Brand Blue palette */
+  --color-blue-50: #E6F2FB;
+  --color-blue-100: #CCE5F7;
+  --color-blue-200: #99CBEF;
+  --color-blue-300: #66B0E6;
+  --color-blue-400: #3396DE;
+  --color-blue-500: #0070BB;
+  --color-blue-600: #0257A5;
+  --color-blue-700: #03448A;
+  --color-blue-800: #023370;
+  --color-blue-900: #012356;
+  --color-blue-950: #001433;
+
+  /* TdA Teal accent */
+  --color-teal-50: #EAFAF9;
+  --color-teal-100: #D0F4F3;
+  --color-teal-200: #A1E9E7;
+  --color-teal-300: #72DEDA;
+  --color-teal-400: #49B3B4;
+  --color-teal-500: #2E9B9C;
+  --color-teal-600: #257E7F;
+  --color-teal-700: #1C6162;
+  --color-teal-800: #134445;
+  --color-teal-900: #0A2728;
+  --color-teal-950: #051414;
+
+  /* TdA Green accent */
+  --color-green-50: #F0FFF5;
+  --color-green-100: #DCFEEA;
+  --color-green-200: #B9FDD5;
+  --color-green-300: #91F5AD;
+  --color-green-400: #6DD4B1;
+  --color-green-500: #4CB890;
+  --color-green-600: #3A9A74;
+  --color-green-700: #2A7C5A;
+  --color-green-800: #1C5E42;
+  --color-green-900: #10402C;
+  --color-green-950: #062216;
+}
+
+/* ── Dark theme — TRUE BLACK ──────────────────────────────────── */
+.dark {
+  --ui-bg: #000000;
+  --ui-bg-muted: #080808;
+  --ui-bg-elevated: #121212;
+  --ui-bg-accented: #1A1A1A;
+  --ui-bg-inverted: #F8FAFC;
+
+  --ui-text: #EAEEF4;
+  --ui-text-muted: #8494A7;
+  --ui-text-dimmed: #4E5A6D;
+  --ui-text-tinted: #91F5AD;
+  --ui-text-highlighted: #FFFFFF;
+  --ui-text-inverted: #000000;
+
+  --ui-border: #222222;
+  --ui-border-muted: #1A1A1A;
+  --ui-border-accented: #2E2E2E;
+  --ui-border-inverted: #E8ECF2;
+}
+
+/* ── Light theme ──────────────────────────────────────────────── */
+:root {
+  --ui-bg: #FAFCFE;
+  --ui-bg-muted: #F1F4F8;
+  --ui-bg-elevated: #FFFFFF;
+  --ui-bg-accented: #EAF0F6;
+  --ui-bg-inverted: #0A0A0A;
+
+  --ui-text: #111827;
+  --ui-text-muted: #4B5C73;
+  --ui-text-dimmed: #8B9BB5;
+  --ui-text-tinted: #0070BB;
+  --ui-text-highlighted: #0A0E16;
+  --ui-text-inverted: #FAFCFE;
+
+  --ui-border: #DDE3EB;
+  --ui-border-muted: #E8EDF3;
+  --ui-border-accented: #C5CDD9;
+  --ui-border-inverted: #111111;
+}
+
+/* ── Fade-in animation ────────────────────────────────────────── */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in     { animation: fade-in-up 0.5s ease-out both; }
+.fade-in-d1  { animation: fade-in-up 0.5s 0.08s ease-out both; }
+.fade-in-d2  { animation: fade-in-up 0.5s 0.16s ease-out both; }
+.fade-in-d3  { animation: fade-in-up 0.5s 0.24s ease-out both; }
+.fade-in-d4  { animation: fade-in-up 0.5s 0.32s ease-out both; }
+.fade-in-d5  { animation: fade-in-up 0.5s 0.40s ease-out both; }
+
+/* ── Gentle float ─────────────────────────────────────────────── */
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-gentle-float {
+  animation: gentle-float 5s ease-in-out infinite;
+}
+
+/* ── Accent text — solid brand color ──────────────────────────── */
+.text-accent {
+  color: #0070BB;
+}
+
+.dark .text-accent {
+  color: #91F5AD;
+}
+
+/* ── Gradient accent line ─────────────────────────────────────── */
+.tda-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #0070BB60, #49B3B4, #0070BB60, transparent);
+  border: none;
+}
+
+/* ── Soft gradient orb (background decoration) ────────────────── */
+.gradient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.20;
+}
+
+.dark .gradient-orb {
+  opacity: 0.12;
+}
+
+.gradient-orb-blue {
+  background: radial-gradient(circle, #0070BB, transparent 70%);
+}
+
+.gradient-orb-teal {
+  background: radial-gradient(circle, #49B3B4, transparent 70%);
+}
+
+.gradient-orb-green {
+  background: radial-gradient(circle, #91F5AD, transparent 70%);
+}
+
+/* ── Gradient mesh section background ─────────────────────────── */
+.section-gradient {
+  position: relative;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 50%, rgba(0, 112, 187, 0.06), transparent),
+    radial-gradient(ellipse 50% 60% at 80% 50%, rgba(73, 179, 180, 0.05), transparent);
+}
+
+.dark .section-gradient {
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 50%, rgba(0, 112, 187, 0.10), transparent),
+    radial-gradient(ellipse 50% 60% at 80% 50%, rgba(73, 179, 180, 0.07), transparent);
+}
+
+/* ── Card with hover glow ─────────────────────────────────────── */
+.card-glow {
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.card-glow:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 112, 187, 0.3);
+  box-shadow: 0 16px 40px -8px rgba(0, 112, 187, 0.12);
+}
+
+.dark .card-glow:hover {
+  border-color: rgba(73, 179, 180, 0.25);
+  box-shadow: 0 16px 40px -8px rgba(0, 112, 187, 0.25);
+}
+
+/* ── Simple card lift ─────────────────────────────────────────── */
+.card-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -6px rgba(0, 112, 187, 0.08);
+}
+
+.dark .card-lift:hover {
+  box-shadow: 0 8px 24px -6px rgba(0, 112, 187, 0.15);
+}
+
+/* ── Icon badge — solid brand blue ─────────────────────────────── */
+.icon-badge {
+  background: #0070BB;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Button glow — brand blue shadow ──────────────────────────── */
+.btn-glow {
+  box-shadow: 0 4px 20px -4px rgba(0, 112, 187, 0.35);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.btn-glow:hover {
+  box-shadow: 0 8px 28px -4px rgba(0, 112, 187, 0.5);
+  transform: translateY(-1px);
+}
+
+/* ── Gradient divider ─────────────────────────────────────────── */
+.gradient-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 5%, #0070BB40, #49B3B4, #0070BB40, transparent 95%);
+  border: none;
+}
+
+/* ── Surface with brand gradient ──────────────────────────────── */
+.surface-brand {
+  background: linear-gradient(135deg, #0070BB, #2592B8, #49B3B4);
+}
+
+.surface-brand-subtle {
+  background: linear-gradient(135deg, rgba(0, 112, 187, 0.08), rgba(73, 179, 180, 0.05));
+}
+
+.dark .surface-brand-subtle {
+  background: linear-gradient(135deg, rgba(0, 112, 187, 0.12), rgba(73, 179, 180, 0.08));
+}
+
+/* ── Section tinted with subtle gradient ──────────────────────── */
+.section-tinted {
+  background-color: var(--ui-bg-muted);
+}

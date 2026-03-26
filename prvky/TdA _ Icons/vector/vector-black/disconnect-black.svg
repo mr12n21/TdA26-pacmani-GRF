@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Vrstva_2" data-name="Vrstva 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10.31 4.99">
+  <g id="ikonky">
+    <g>
+      <rect x="0" y="4.16" width="2.98" height=".83" transform="translate(2.99 9.15) rotate(180)"/>
+      <path d="M0,3.68C0,2.86.67,2.19,1.49,2.19s1.49.67,1.49,1.49"/>
+      <rect x="7.32" y="4.16" width="2.98" height=".83" transform="translate(17.63 9.15) rotate(180)"/>
+      <path d="M7.32,3.68c0-.82.67-1.49,1.49-1.49s1.49.67,1.49,1.49"/>
+      <path d="M10.31,3.68h-1.12c0-1.39-1.85-2.56-4.03-2.56S1.12,2.29,1.12,3.68H0C0,1.62,2.26,0,5.15,0s5.15,1.62,5.15,3.68Z"/>
+    </g>
+  </g>
+</svg>

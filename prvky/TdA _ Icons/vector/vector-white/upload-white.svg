@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Vrstva_2" data-name="Vrstva 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7.71 8.08">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+      }
+    </style>
+  </defs>
+  <g id="ikonky">
+    <g>
+      <path class="cls-1" d="M7.56,5.3l-1.73-1.73-1.68,1.68c-.19.19-.19.5,0,.69s.5.19.69,0l.53-.53v2.18c0,.27.22.49.49.49s.49-.22.49-.49v-2.13l.53.53c.1.1.22.14.35.14s.25-.05.35-.14c.19-.19.19-.5,0-.69Z"/>
+      <g>
+        <polygon class="cls-1" points="5.18 0 5.18 1.91 7.2 1.91 5.18 0"/>
+        <path class="cls-1" d="M5,6.28c-.33.25-.81.22-1.11-.08-.33-.33-.33-.88,0-1.21l1.94-1.94,1.38,1.38v-2.04h-2.52V0H0v7.21h5v-.93Z"/>
+      </g>
+    </g>
+  </g>
+</svg>

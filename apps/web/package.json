@@ -1,0 +1,31 @@
+{
+  "name": "tda-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.98",
+    "@iconify-json/simple-icons": "^1.2.74",
+    "@nuxt/image": "^2.0.0",
+    "@nuxt/ui": "^4.5.1",
+    "@pinia/nuxt": "^0.9.0",
+    "@vueuse/nuxt": "^14.2.1",
+    "nuxt": "^4.4.2",
+    "pinia": "^2.3.0",
+    "tailwindcss": "^4.2.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.15.2",
+    "eslint": "^10.0.3",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.2.5"
+  }
+}

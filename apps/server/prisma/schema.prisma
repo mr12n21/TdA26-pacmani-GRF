@@ -1,0 +1,287 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── User ────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role
+  createdAt    DateTime @default(now())
+
+  courses       Course[]      @relation("ownedCourses")
+  feedPosts     FeedPost[]    @relation("authoredPosts")
+  likes         Like[]
+  documents     Document[]
+  participants  Participant[]
+
+  @@index([email])
+  @@index([role])
+  @@index([createdAt])
+}
+
+enum Role {
+  STUDENT
+  LECTURER
+  ADMIN
+}
+
+// ─── Course ──────────────────────────────────────────────────────────
+
+model Course {
+  id             String      @id @default(uuid())
+  title          String
+  description    String?
+  state          CourseState  @default(DRAFT)
+  scheduledStart DateTime?
+  isDuplicate    Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  ownerId        String
+
+  owner          User          @relation("ownedCourses", fields: [ownerId], references: [id], onDelete: Cascade)
+  modules        Module[]
+  feedPosts      FeedPost[]
+  likes          Like[]
+  participants   Participant[]
+  materialInteractions MaterialInteraction[]
+
+  @@index([ownerId])
+  @@index([state])
+  @@index([createdAt(sort: Desc)])
+  @@index([updatedAt])
+}
+
+enum CourseState {
+  DRAFT
+  SCHEDULED
+  LIVE
+  PAUSED
+  ARCHIVED
+}
+
+// ─── Module ──────────────────────────────────────────────────────────
+
+model Module {
+  id          String   @id @default(uuid())
+  courseId     String
+  title       String
+  description String?
+  order       Int
+  isRevealed  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  materials   Material[]
+  quizzes     Quiz[]
+
+  @@unique([courseId, order])
+  @@index([courseId])
+}
+
+// ─── Material (belongs to Module) ────────────────────────────────────
+
+model Material {
+  id          String       @id @default(uuid())
+  moduleId    String
+  type        MaterialType
+  title       String
+  description String?
+  url         String?
+  faviconUrl  String?
+  filePath    String?
+  fileMime    String?
+  fileSize    Int?
+  fileKey     String?
+  order       Int          @default(0)
+  createdAt   DateTime     @default(now())
+
+  module      Module       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  interactions MaterialInteraction[]
+
+  @@unique([moduleId, order])
+  @@index([moduleId])
+  @@index([createdAt(sort: Desc)])
+}
+
+enum MaterialType {
+  FILE
+  URL
+  VIDEO
+  TEXT
+}
+
+// ─── Quiz (belongs to Module) ────────────────────────────────────────
+
+model Quiz {
+  id          String      @id @default(uuid())
+  moduleId    String
+  title       String
+  description String?
+  timesTaken  Int         @default(0)
+  createdAt   DateTime    @default(now())
+
+  module      Module      @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  questions   Question[]
+  results     QuizResult[]
+
+  @@index([moduleId])
+  @@index([createdAt(sort: Desc)])
+}
+
+model Question {
+  id            String       @id @default(uuid())
+  quizId        String
+  text          String
+  type          QuestionType
+  choices       Json?
+  correctAnswer Json?
+
+  quiz          Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([quizId])
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TEXT
+  TRUE_FALSE
+}
+
+// ─── Quiz Results & Participants ─────────────────────────────────────
+
+model QuizResult {
+  id            String   @id @default(uuid())
+  participantId String
+  quizId        String
+  answers       Json
+  score         Int      // 0-100
+  completedAt   DateTime @default(now())
+
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  quiz          Quiz        @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([participantId])
+  @@index([quizId])
+}
+
+model Participant {
+  id           String          @id @default(uuid())
+  courseId      String
+  type         ParticipantType
+  userId       String?
+  anonymousId  String?
+  nickname     String?
+  joinedAt     DateTime        @default(now())
+
+  course       Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user         User?           @relation(fields: [userId], references: [id])
+  results      QuizResult[]
+  materialInteractions MaterialInteraction[]
+
+  @@unique([courseId, userId])
+  @@unique([courseId, anonymousId])
+  @@index([courseId])
+  @@index([userId])
+}
+
+enum ParticipantType {
+  REGISTERED
+  ANONYMOUS
+}
+
+// ─── Material Interactions (analytics) ──────────────────────────────
+
+model MaterialInteraction {
+  id              String                  @id @default(uuid())
+  courseId        String
+  materialId      String
+  participantId   String?
+  interactionType MaterialInteractionType
+  createdAt       DateTime                @default(now())
+
+  course          Course                  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  material        Material                @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  participant     Participant?            @relation(fields: [participantId], references: [id], onDelete: SetNull)
+
+  @@index([courseId, interactionType])
+  @@index([materialId])
+  @@index([participantId])
+  @@index([createdAt(sort: Desc)])
+}
+
+enum MaterialInteractionType {
+  DOWNLOAD
+  URL_OPEN
+}
+
+// ─── Feed (Info Channel) ─────────────────────────────────────────────
+
+model FeedPost {
+  id        String   @id @default(uuid())
+  courseId   String
+  authorId  String?
+  content   String
+  type      FeedType
+  meta      Json?
+  edited    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  author    User?    @relation("authoredPosts", fields: [authorId], references: [id])
+
+  @@index([courseId])
+  @@index([authorId])
+  @@index([createdAt(sort: Desc)])
+}
+
+enum FeedType {
+  MANUAL
+  AUTO
+}
+
+// ─── Likes ───────────────────────────────────────────────────────────
+
+model Like {
+  id        String   @id @default(uuid())
+  userId    String
+  courseId   String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([courseId])
+  @@index([userId])
+}
+
+// ─── Documents ───────────────────────────────────────────────────────
+
+model Document {
+  id           String   @id @default(uuid())
+  filename     String
+  path         String
+  originalName String
+  uploadedById String
+  title        String?
+  description  String?
+  createdAt    DateTime @default(now())
+
+  uploadedBy User @relation(fields: [uploadedById], references: [id])
+
+  @@index([uploadedById])
+  @@index([createdAt(sort: Desc)])
+}
