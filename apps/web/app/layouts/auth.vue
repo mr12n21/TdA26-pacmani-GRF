@@ -6,7 +6,7 @@
       <div class="gradient-orb gradient-orb-green w-[300px] h-[300px] -bottom-16 -right-16" />
       <div class="text-center p-8 fade-in relative">
         <img src="/brand/logos/logo-erb.svg" alt="TdA" class="w-20 h-20 mx-auto mb-6 animate-gentle-float">
-        <h2 class="text-2xl font-bold mb-3 text-accent">Think different Academy</h2>
+        <h2 class="text-2xl font-bold mb-3 text-highlighted">Think different Academy</h2>
         <p class="text-muted max-w-xs mx-auto">Interaktivní vzdělávací platforma pro moderní lektory i studenty</p>
       </div>
     </div>

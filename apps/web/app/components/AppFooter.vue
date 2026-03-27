@@ -30,7 +30,7 @@ const columns = [
             <div class="flex items-center gap-3">
               <img src="/brand/logos/logo-erb.svg" alt="TdA" class="h-12 w-12">
               <div>
-                <p class="font-extrabold text-accent">
+                <p class="font-extrabold text-highlighted">
                   Think different Academy
                 </p>
                 <p class="text-sm text-muted">Interaktivní vzdělávací platforma</p>

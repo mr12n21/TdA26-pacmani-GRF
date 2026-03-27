@@ -59,7 +59,7 @@ const searchGroups = computed(() => [{
       <template #header="{ collapsed }">
         <NuxtLink to="/dashboard" class="flex items-center gap-2 px-2 py-1 group">
           <img src="/brand/logos/logo-erb.svg" alt="TdA" class="h-7 w-7 shrink-0 group-hover:scale-105 transition-transform" />
-          <span v-if="!collapsed" class="font-extrabold text-sm truncate text-accent">Think different Academy</span>
+          <span v-if="!collapsed" class="font-extrabold text-sm truncate text-highlighted">Think different Academy</span>
         </NuxtLink>
       </template>
 

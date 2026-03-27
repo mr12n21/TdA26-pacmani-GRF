@@ -44,27 +44,6 @@
   --color-green-950: #062216;
 }
 
-/* ── Dark theme — TRUE BLACK ──────────────────────────────────── */
-.dark {
-  --ui-bg: #000000;
-  --ui-bg-muted: #080808;
-  --ui-bg-elevated: #121212;
-  --ui-bg-accented: #1A1A1A;
-  --ui-bg-inverted: #F8FAFC;
-
-  --ui-text: #EAEEF4;
-  --ui-text-muted: #8494A7;
-  --ui-text-dimmed: #4E5A6D;
-  --ui-text-tinted: #91F5AD;
-  --ui-text-highlighted: #FFFFFF;
-  --ui-text-inverted: #000000;
-
-  --ui-border: #222222;
-  --ui-border-muted: #1A1A1A;
-  --ui-border-accented: #2E2E2E;
-  --ui-border-inverted: #E8ECF2;
-}
-
 /* ── Light theme ──────────────────────────────────────────────── */
 :root {
   --ui-bg: #FAFCFE;
@@ -84,6 +63,27 @@
   --ui-border-muted: #E8EDF3;
   --ui-border-accented: #C5CDD9;
   --ui-border-inverted: #111111;
+}
+
+/* ── Dark theme — TRUE BLACK ──────────────────────────────────── */
+.dark {
+  --ui-bg: #000000;
+  --ui-bg-muted: #080808;
+  --ui-bg-elevated: #121212;
+  --ui-bg-accented: #1A1A1A;
+  --ui-bg-inverted: #F8FAFC;
+
+  --ui-text: #EAEEF4;
+  --ui-text-muted: #8494A7;
+  --ui-text-dimmed: #4E5A6D;
+  --ui-text-tinted: #91F5AD;
+  --ui-text-highlighted: #FFFFFF;
+  --ui-text-inverted: #000000;
+
+  --ui-border: #222222;
+  --ui-border-muted: #1A1A1A;
+  --ui-border-accented: #2E2E2E;
+  --ui-border-inverted: #E8ECF2;
 }
 
 /* ── Fade-in animation ────────────────────────────────────────── */
@@ -115,7 +115,12 @@
 }
 
 .dark .text-accent {
-  color: #91F5AD;
+  color: #6DD4B1;
+}
+
+/* ── Highlighted text — high contrast (black/white) ───────────── */
+.text-highlighted {
+  color: var(--ui-text-highlighted);
 }
 
 /* ── Gradient accent line ─────────────────────────────────────── */
@@ -139,29 +144,31 @@
 }
 
 .gradient-orb-blue {
-  background: radial-gradient(circle, #0070BB, transparent 70%);
+  background: radial-gradient(circle, #0070BB, #2592B8 40%, transparent 70%);
 }
 
 .gradient-orb-teal {
-  background: radial-gradient(circle, #49B3B4, transparent 70%);
+  background: radial-gradient(circle, #49B3B4, #6DD4B1 40%, transparent 70%);
 }
 
 .gradient-orb-green {
-  background: radial-gradient(circle, #91F5AD, transparent 70%);
+  background: radial-gradient(circle, #91F5AD, #6DD4B1 40%, transparent 70%);
 }
 
 /* ── Gradient mesh section background ─────────────────────────── */
 .section-gradient {
   position: relative;
   background:
-    radial-gradient(ellipse 60% 50% at 20% 50%, rgba(0, 112, 187, 0.06), transparent),
-    radial-gradient(ellipse 50% 60% at 80% 50%, rgba(73, 179, 180, 0.05), transparent);
+    radial-gradient(ellipse 60% 50% at 20% 50%, rgba(0, 112, 187, 0.08), transparent),
+    radial-gradient(ellipse 50% 60% at 80% 50%, rgba(73, 179, 180, 0.06), transparent),
+    radial-gradient(ellipse 40% 40% at 60% 30%, rgba(145, 245, 173, 0.04), transparent);
 }
 
 .dark .section-gradient {
   background:
-    radial-gradient(ellipse 60% 50% at 20% 50%, rgba(0, 112, 187, 0.10), transparent),
-    radial-gradient(ellipse 50% 60% at 80% 50%, rgba(73, 179, 180, 0.07), transparent);
+    radial-gradient(ellipse 60% 50% at 20% 50%, rgba(0, 112, 187, 0.14), transparent),
+    radial-gradient(ellipse 50% 60% at 80% 50%, rgba(73, 179, 180, 0.10), transparent),
+    radial-gradient(ellipse 40% 40% at 60% 30%, rgba(145, 245, 173, 0.06), transparent);
 }
 
 /* ── Card with hover glow ─────────────────────────────────────── */
@@ -217,8 +224,8 @@
 
 /* ── Gradient divider ─────────────────────────────────────────── */
 .gradient-divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent 5%, #0070BB40, #49B3B4, #0070BB40, transparent 95%);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #0070BB60, #49B3B4, #91F5AD80, #49B3B4, #0070BB60, transparent);
   border: none;
 }
 
