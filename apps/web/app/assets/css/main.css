@@ -71,44 +71,59 @@
 
 /* ── Light theme — Clean SaaS ─────────────────────────────────── */
 :root {
-  --ui-bg: #FAFCFE;
-  --ui-bg-muted: #F1F4F8;
-  --ui-bg-elevated: #FFFFFF;
-  --ui-bg-accented: #EAF0F6;
-  --ui-bg-inverted: #0B0F19;
+  /* Brand Primary mapping for Nuxt UI */
+  --ui-primary: var(--color-blue-500);
+  
+  --ui-bg: #FAFCFE;               /* Celé pozadí */
+  --ui-bg-muted: #F1F5F9;         /* Sekce, vstupy */
+  --ui-bg-elevated: #FFFFFF;      /* Karty, modaly */
+  --ui-bg-accented: #E2E8F0;      /* Hover stavy */
+  --ui-bg-inverted: #0F172A;
 
-  --ui-text: #111827;
-  --ui-text-muted: #4B5C73;
-  --ui-text-dimmed: #8B9BB5;
-  --ui-text-tinted: #0070BB;
-  --ui-text-highlighted: #0A0E16;
-  --ui-text-inverted: #FAFCFE;
+  --ui-text: #0F172A;             /* Hlavní text */
+  --ui-text-muted: #475569;       /* Popisky, vedlejší text */
+  --ui-text-dimmed: #94A3B8;      /* Placeholder, disabled */
+  --ui-text-tinted: #0070BB;      /* Akcentní text */
+  --ui-text-highlighted: #020617; /* Nadpisy */
+  --ui-text-inverted: #FFFFFF;
 
-  --ui-border: #DDE3EB;
-  --ui-border-muted: #E8EDF3;
-  --ui-border-accented: #C5CDD9;
-  --ui-border-inverted: #111111;
+  --ui-border: #E2E8F0;
+  --ui-border-muted: #F1F5F9;
+  --ui-border-accented: #CBD5E1;
+  --ui-border-inverted: #1E293B;
+
+  /* Specifické pro komponenty v Light modu */
+  --stat-card-bg: rgba(0, 112, 187, 0.03);
+  --stat-card-border: rgba(0, 112, 187, 0.08);
+  --hero-mesh-opacity: 0.05;
 }
 
 /* ── Dark theme — Deep Navy/Slate (NO pure black) ─────────────── */
 .dark {
-  --ui-bg: #0B0F19;
-  --ui-bg-muted: #0E1422;
-  --ui-bg-elevated: #121826;
-  --ui-bg-accented: #1A2236;
+  --ui-primary: var(--color-blue-400);
+
+  --ui-bg: #0B0F19;               /* Deep Navy základ */
+  --ui-bg-muted: #111827;         /* Tmavší sekce */
+  --ui-bg-elevated: #161E2E;      /* Karty (vystupují z pozadí) */
+  --ui-bg-accented: #1F2937;      /* Hover stavy */
   --ui-bg-inverted: #F8FAFC;
 
-  --ui-text: #EAEEF4;
-  --ui-text-muted: #8494A7;
-  --ui-text-dimmed: #4E5A6D;
-  --ui-text-tinted: #91F5AD;
-  --ui-text-highlighted: #FFFFFF;
+  --ui-text: #E2E8F0;             /* Off-white pro čitelnost */
+  --ui-text-muted: #F8FAFC;       /* Šedomodrá pro méně důležité */
+  --ui-text-dimmed: #E2E8F0;      /* Tlumené */
+  --ui-text-tinted: #91F5AD;      /* Brand Teal/Green akcent */
+  --ui-text-highlighted: #FFFFFF; /* Čistě bílá pro nadpisy */
   --ui-text-inverted: #0B0F19;
 
-  --ui-border: #1E2A3E;
-  --ui-border-muted: #162030;
-  --ui-border-accented: #2A3A52;
-  --ui-border-inverted: #E8ECF2;
+  --ui-border: #1E293B;
+  --ui-border-muted: #111827;
+  --ui-border-accented: #334155;
+  --ui-border-inverted: #F1F5F9;
+
+  /* Specifické pro komponenty v Dark modu */
+  --stat-card-bg: rgba(255, 255, 255, 0.03);
+  --stat-card-border: rgba(255, 255, 255, 0.08);
+  --hero-mesh-opacity: 0.35;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -314,6 +329,193 @@
 .dark .glass {
   background: rgba(11, 15, 25, 0.72);
   border-color: rgba(30, 42, 62, 0.5);
+}
+
+.hero-surface {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F5F9FD 100%);
+  color: var(--ui-text);
+  transition: background-color 0.3s ease;
+}
+
+.hero-surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(90deg, rgba(15,23,42,0.03) 1px, transparent 1px),
+    linear-gradient(30deg, rgba(15,23,42,0.03) 1px, transparent 1px),
+    linear-gradient(-30deg, rgba(15,23,42,0.03) 1px, transparent 1px);
+  background-size: 72px 124px;
+  opacity: 0.14;
+  pointer-events: none;
+}
+
+.dark .hero-surface {
+  background-color: #020617;
+  background-image:
+    radial-gradient(circle at top left, rgba(255,255,255,0.06), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(73,179,180,0.1), transparent 30%);
+}
+
+.hero-grid-pattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px),
+    linear-gradient(60deg, rgba(15,23,42,0.04) 1px, transparent 1px),
+    linear-gradient(-60deg, rgba(15,23,42,0.04) 1px, transparent 1px);
+  background-size: 120px 208px;
+  opacity: 0.12;
+  pointer-events: none;
+}
+.dark .hero-grid-pattern {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(60deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(-60deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  opacity: 0.14;
+}
+
+.hero-preview {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2rem;
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 28px 50px rgba(15, 23, 42, 0.08);
+}
+
+.hero-preview::after {
+  content: '';
+  position: absolute;
+  width: 112px;
+  height: 96px;
+  right: -18px;
+  top: -14px;
+  opacity: 0.14;
+  background: rgba(2, 112, 187, 0.12);
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  pointer-events: none;
+}
+
+.hero-surface h1,
+.hero-surface h2,
+.hero-surface p {
+  color: var(--ui-text);
+}
+
+.hero-preview .text-slate-200\/70,
+.hero-preview .text-slate-300 {
+  color: rgba(15, 23, 42, 0.65);
+}
+
+.dark .hero-preview .text-slate-200\/70,
+.dark .hero-preview .text-slate-300,
+.dark .text-slate-300,
+.dark .text-slate-400,
+.dark .text-slate-500,
+.dark .text-muted {
+  color: #F8FAFC;
+}
+
+.text-xs {
+  font-size: 0.875rem; /* 14px */
+}
+
+.text-sm {
+  font-size: 1rem; /* 16px */
+}
+
+.text-base {
+  font-size: 1.125rem; /* 18px */
+}
+
+.text-lg {
+  font-size: 1.25rem; /* 20px */
+}
+
+.stat-card {
+  min-height: 12rem;
+  border-radius: 2rem;
+  background: var(--stat-card-bg);
+  border: 1px solid var(--stat-card-border);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+.stat-value {
+  display: inline-flex;
+  align-items: baseline;
+  font-size: 2.75rem;
+  font-weight: 700;
+  color: var(--ui-text-highlighted);
+  letter-spacing: -0.04em;
+}
+
+.stat-label {
+  margin-top: 0.75rem;
+  font-size: 1.4rem;
+  color: var(--ui-text-muted);
+}
+.dark .stat-value {
+  text-shadow: 0 0 20px rgba(145, 245, 173, 0.2);
+}
+.dark .stat-label {
+  color: rgba(241, 245, 249, 0.75);
+}
+.step-card {
+  min-height: 16rem;
+  border-radius: 1.75rem;
+  background: var(--ui-bg-elevated); /* Opraveno z text-muted */
+  border: 1px solid var(--ui-border);
+  padding: 2rem;
+  transition: transform 0.3s var(--tda-ease-bounce), box-shadow 0.3s ease;
+}
+
+.step-card h3 {
+  color: var(--ui-text-highlighted);
+}
+
+.step-card p {
+  color: var(--ui-text-muted);
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #0070BB, #49B3B4);
+  color: white;
+  font-weight: 700;
+}
+
+.step-card h3 {
+  margin-top: 1.25rem;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.step-card p {
+  margin-top: 0.75rem;
+  color: #475569;
+  line-height: 1.75;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
