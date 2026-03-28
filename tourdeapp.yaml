@@ -23,9 +23,6 @@ containers:
     port: 3001
     env:
       NODE_ENV: production
-      PORT: 3001
-      HOST: 0.0.0.0
-      NUXT_PUBLIC_API_BASE: /api
   - name: caddy
     image: registry.tourde.cloud/pacmani/caddy
     port: 80

@@ -53,13 +53,22 @@ const searchGroups = computed(() => [{
       v-model:open="open"
       collapsible
       resizable
-      class="bg-muted/70 backdrop-blur border-r border-default"
+      class="dashboard-sidebar"
       :ui="{ footer: 'lg:border-t lg:border-default' }"
     >
       <template #header="{ collapsed }">
-        <NuxtLink to="/dashboard" class="flex items-center gap-2 px-2 py-1 group">
-          <img src="/brand/logos/logo-erb.svg" alt="TdA" class="h-7 w-7 shrink-0 group-hover:scale-105 transition-transform" />
-          <span v-if="!collapsed" class="font-extrabold text-sm truncate text-highlighted">Think different Academy</span>
+        <NuxtLink to="/dashboard" class="flex items-center gap-2.5 px-2 py-1.5 group">
+          <img
+            src="/brand/logos/logo-erb.svg"
+            alt="TdA"
+            class="h-7 w-7 shrink-0 group-hover:scale-105 transition-transform duration-200"
+          />
+          <span
+            v-if="!collapsed"
+            class="font-extrabold text-sm truncate text-highlighted"
+          >
+            Think different Academy
+          </span>
         </NuxtLink>
       </template>
 
@@ -92,3 +101,13 @@ const searchGroups = computed(() => [{
     <slot />
   </UDashboardGroup>
 </template>
+
+<style scoped>
+.dashboard-sidebar {
+  background-image: var(--tda-surface-glow-admin);
+  background-color: var(--ui-bg-muted);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-right: 1px solid var(--ui-border);
+}
+</style>
