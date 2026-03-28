@@ -128,7 +128,7 @@ const features = [
           <div class="step-card bg-white dark:bg-slate-900/50 border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
             <span class="step-number">1.</span>
             <h3 class="text-slate-900 dark:text-white font-bold text-xl mt-4">Vytvoříte virtuální třídu</h3>
-            <p class="text-slate-600 dark:text-slate-400 mt-2">
+            <p class="text-slate-600 dark:text-slate-400 mt-2 text-sm">
               Na pár kliknutí vytvoříte skupinu a pozvete do ní žáky pomocí jednoduchého importu.
             </p>
           </div>
@@ -136,7 +136,7 @@ const features = [
           <div class="step-card bg-white dark:bg-slate-900/50 border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
             <span class="step-number">2.</span>
             <h3 class="text-slate-900 dark:text-white font-bold text-xl mt-4">Vyberete si úlohu</h3>
-            <p class="text-slate-600 dark:text-slate-400 mt-2">
+            <p class="text-slate-600 dark:text-slate-400 mt-2 text-sm">
               Vyberete z připravených témat a zadáte úlohu konkrétní skupině studentů.
             </p>
           </div>
@@ -144,7 +144,7 @@ const features = [
           <div class="step-card bg-white dark:bg-slate-900/50 border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
             <span class="step-number">3.</span>
             <h3 class="text-slate-900 dark:text-white font-bold text-xl mt-4">Sledujete práci v reálném čase</h3>
-            <p class="text-slate-600 dark:text-slate-400 mt-2">
+            <p class="text-slate-600 dark:text-slate-400 mt-2 text-sm">
               Při plnění vidíte postup celé třídy i jednotlivých žáků a můžete rychle zasáhnout.
             </p>
           </div>
@@ -157,7 +157,7 @@ const features = [
         <div class="max-w-5xl mx-auto text-center">
           <p class="text-xs uppercase tracking-[0.28em] text-accent mb-4">Platforma a obsah</p>
           <h2 class="text-3xl font-bold mb-4">Všechny nástroje pro moderní výuku pod jednou střechou</h2>
-          <p class="text-muted max-w-3xl mx-auto">Kombinujeme správu kurzu, interaktivní moduly, testování a komunikaci. Haxagonový styl je o rychlosti, přehlednosti a praktičnosti.</p>
+          <p class="text-muted max-w-3xl mx-auto txt-lg">Kombinujeme správu kurzu, interaktivní moduly, testování a komunikaci. Haxagonový styl je o rychlosti, přehlednosti a praktičnosti.</p>
         </div>
 
         <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
