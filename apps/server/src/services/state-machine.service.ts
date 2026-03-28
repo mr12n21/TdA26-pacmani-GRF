@@ -61,7 +61,8 @@ export function assertDraftState(currentState: CourseState): void {
 }
 
 
-export function assertOwnership(userId: string, ownerId: string): void {
+export function assertOwnership(userId: string, ownerId: string, globalRole?: string): void {
+  if (globalRole === 'SUPER_ADMIN') return;
   if (userId !== ownerId) {
     throw new StateTransitionError('Only the course owner can perform this action.', 403);
   }

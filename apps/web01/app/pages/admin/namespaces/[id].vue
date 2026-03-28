@@ -9,7 +9,7 @@
         <template #right>
           <UBadge
             v-if="namespace"
-            :color="(getStatusColor(namespace.status)) as any"
+            :color="getStatusColor(namespace.status) as any"
             :label="getStatusLabel(namespace.status)"
             size="lg"
           />
@@ -22,23 +22,23 @@
 
       <div v-else-if="namespace" class="p-6 space-y-6">
         <!-- Info Card -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div class="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-bg)] p-6">
           <h2 class="text-lg font-bold mb-4">Informace o organizaci</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Název</p>
+              <p class="text-sm text-[var(--ui-text-muted)]">Název</p>
               <p class="font-semibold">{{ namespace.name }}</p>
             </div>
             <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Slug</p>
+              <p class="text-sm text-[var(--ui-text-muted)]">Slug</p>
               <p class="font-mono">{{ namespace.slug }}</p>
             </div>
             <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Vytvořeno</p>
+              <p class="text-sm text-[var(--ui-text-muted)]">Vytvořeno</p>
               <p>{{ formatDate(namespace.createdAt) }}</p>
             </div>
             <div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Popis</p>
+              <p class="text-sm text-[var(--ui-text-muted)]">Popis</p>
               <p>{{ namespace.description || '—' }}</p>
             </div>
           </div>
@@ -46,106 +46,115 @@
           <div class="flex gap-3 mt-6">
             <UButton
               v-if="namespace.status === 'PENDING'"
+              icon="i-heroicons-check"
+              label="Schválit organizaci"
               color="success"
               @click="updateStatus('ACTIVE')"
               :loading="updatingStatus"
-            >
-              Schválit
-            </UButton>
+            />
+            <UButton
+              v-if="namespace.status === 'PENDING'"
+              icon="i-heroicons-x-mark"
+              label="Zamítnout"
+              color="error"
+              variant="soft"
+              @click="updateStatus('SUSPENDED')"
+              :loading="updatingStatus"
+            />
             <UButton
               v-if="namespace.status === 'ACTIVE'"
+              icon="i-heroicons-pause"
+              label="Pozastavit"
               color="warning"
               variant="soft"
               @click="updateStatus('SUSPENDED')"
               :loading="updatingStatus"
-            >
-              Pozastavit
-            </UButton>
+            />
             <UButton
               v-if="namespace.status === 'SUSPENDED'"
+              icon="i-heroicons-play"
+              label="Aktivovat"
               color="success"
               @click="updateStatus('ACTIVE')"
               :loading="updatingStatus"
-            >
-              Aktivovat
-            </UButton>
+            />
           </div>
         </div>
 
         <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 text-center">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-bg)] p-4 text-center">
             <p class="text-2xl font-bold">{{ namespace._count?.members ?? 0 }}</p>
-            <p class="text-sm text-gray-500">Členové</p>
+            <p class="text-sm text-[var(--ui-text-muted)]">Členové</p>
           </div>
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 text-center">
+          <div class="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-bg)] p-4 text-center">
             <p class="text-2xl font-bold">{{ namespace._count?.courses ?? 0 }}</p>
-            <p class="text-sm text-gray-500">Kurzy</p>
+            <p class="text-sm text-[var(--ui-text-muted)]">Kurzy</p>
           </div>
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 text-center">
+          <div class="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-bg)] p-4 text-center">
             <p class="text-2xl font-bold">{{ namespace._count?.feedPosts ?? 0 }}</p>
-            <p class="text-sm text-gray-500">Příspěvky</p>
+            <p class="text-sm text-[var(--ui-text-muted)]">Příspěvky</p>
           </div>
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 text-center">
+          <div class="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-bg)] p-4 text-center">
             <p class="text-2xl font-bold">{{ namespace._count?.documents ?? 0 }}</p>
-            <p class="text-sm text-gray-500">Dokumenty</p>
+            <p class="text-sm text-[var(--ui-text-muted)]">Dokumenty</p>
           </div>
         </div>
 
         <!-- Members -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div class="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-bg)] p-6">
           <h2 class="text-lg font-bold mb-4">Členové organizace</h2>
           <UTable
-            :rows="members"
-            :columns="memberColumns as any"
+            :data="members"
+            :columns="memberColumns"
             :loading="loadingMembers"
           >
-            <template #user-data="{ row }: any">
+            <template #user-cell="{ row }">
               <div>
-                <p class="font-semibold">{{ row.user?.name ?? 'Neznámý' }}</p>
-                <p class="text-sm text-gray-500">{{ row.user?.email }}</p>
+                <p class="font-semibold">{{ row.original.user?.name ?? 'Neznámý' }}</p>
+                <p class="text-sm text-[var(--ui-text-muted)]">{{ row.original.user?.email }}</p>
               </div>
             </template>
 
-            <template #role-data="{ row }: any">
+            <template #role-cell="{ row }">
               <UBadge
-                :color="(getRoleColor(row.role)) as any"
-                :label="getRoleLabel(row.role)"
+                :color="getRoleColor(row.original.role) as any"
+                :label="getRoleLabel(row.original.role)"
               />
             </template>
 
-            <template #status-data="{ row }: any">
+            <template #status-cell="{ row }">
               <UBadge
-                :color="(getMemberStatusColor(row.status)) as any"
-                :label="getMemberStatusLabel(row.status)"
+                :color="getMemberStatusColor(row.original.status) as any"
+                :label="getMemberStatusLabel(row.original.status)"
               />
             </template>
 
-            <template #actions-data="{ row }: any">
+            <template #actions-cell="{ row }">
               <div class="flex gap-2">
                 <UButton
-                  v-if="row.status === 'PENDING'"
+                  v-if="row.original.status === 'PENDING'"
                   size="xs"
+                  icon="i-heroicons-check"
+                  label="Schválit"
                   color="success"
-                  @click="approveMember(row.id)"
-                >
-                  Schválit
-                </UButton>
+                  @click="approveMember(row.original.id)"
+                />
                 <UButton
-                  v-if="row.status === 'PENDING'"
+                  v-if="row.original.status === 'PENDING'"
                   size="xs"
+                  icon="i-heroicons-x-mark"
+                  label="Zamítnout"
                   color="error"
                   variant="soft"
-                  @click="rejectMember(row.id)"
-                >
-                  Zamítnout
-                </UButton>
+                  @click="rejectMember(row.original.id)"
+                />
                 <UButton
                   size="xs"
                   color="error"
                   variant="ghost"
                   icon="i-heroicons-trash"
-                  @click="removeMemberAction(row.id)"
+                  @click="removeMemberAction(row.original.id)"
                 />
               </div>
             </template>
@@ -157,6 +166,8 @@
 </template>
 
 <script setup lang="ts">
+import type { TableColumn } from '@nuxt/ui'
+
 definePageMeta({
   layout: 'dashboard',
   middleware: ['auth']
@@ -173,11 +184,11 @@ const loading = ref(true)
 const loadingMembers = ref(true)
 const updatingStatus = ref(false)
 
-const memberColumns = [
-  { key: 'user', label: 'Uživatel' },
-  { key: 'role', label: 'Role' },
-  { key: 'status', label: 'Status' },
-  { key: 'actions', label: '' }
+const memberColumns: TableColumn<any>[] = [
+  { accessorKey: 'user', header: 'Uživatel' },
+  { accessorKey: 'role', header: 'Role' },
+  { accessorKey: 'status', header: 'Status' },
+  { accessorKey: 'actions', header: '' }
 ]
 
 onMounted(async () => {
@@ -211,9 +222,11 @@ async function updateStatus(status: string) {
   try {
     await patch(`/namespaces/${namespaceId}`, { status })
     await loadNamespace()
+    await loadMembers()
     toast.add({ title: `Status změněn na ${getStatusLabel(status)}`, color: 'success' })
   } catch (err) {
     console.error('Failed to update status:', err)
+    toast.add({ title: 'Chyba při změně statusu', color: 'error' })
   } finally {
     updatingStatus.value = false
   }
@@ -222,18 +235,22 @@ async function updateStatus(status: string) {
 async function approveMember(memberId: string) {
   try {
     await patch(`/namespaces/${namespaceId}/members/${memberId}`, { status: 'APPROVED' })
+    toast.add({ title: 'Člen schválen', color: 'success' })
     await loadMembers()
   } catch (err) {
     console.error('Failed to approve member:', err)
+    toast.add({ title: 'Chyba', color: 'error' })
   }
 }
 
 async function rejectMember(memberId: string) {
   try {
     await patch(`/namespaces/${namespaceId}/members/${memberId}`, { status: 'REJECTED' })
+    toast.add({ title: 'Člen zamítnut', color: 'success' })
     await loadMembers()
   } catch (err) {
     console.error('Failed to reject member:', err)
+    toast.add({ title: 'Chyba', color: 'error' })
   }
 }
 
@@ -241,14 +258,16 @@ async function removeMemberAction(memberId: string) {
   if (!confirm('Opravdu chcete odebrat tohoto člena?')) return
   try {
     await del(`/namespaces/${namespaceId}/members/${memberId}`)
+    toast.add({ title: 'Člen odebrán', color: 'success' })
     await loadMembers()
   } catch (err) {
     console.error('Failed to remove member:', err)
+    toast.add({ title: 'Chyba', color: 'error' })
   }
 }
 
 function getStatusColor(status: string) {
-  return { ACTIVE: 'green', PENDING: 'yellow', SUSPENDED: 'red' }[status] || 'gray'
+  return { ACTIVE: 'success', PENDING: 'warning', SUSPENDED: 'error' }[status] || 'neutral'
 }
 
 function getStatusLabel(status: string) {
@@ -256,7 +275,7 @@ function getStatusLabel(status: string) {
 }
 
 function getRoleColor(role: string) {
-  return { ORG_ADMIN: 'blue', LECTURER: 'indigo', STUDENT: 'gray' }[role] || 'gray'
+  return { ORG_ADMIN: 'info', LECTURER: 'secondary', STUDENT: 'neutral' }[role] || 'neutral'
 }
 
 function getRoleLabel(role: string) {
@@ -264,7 +283,7 @@ function getRoleLabel(role: string) {
 }
 
 function getMemberStatusColor(status: string) {
-  return { APPROVED: 'green', PENDING: 'yellow', REJECTED: 'red' }[status] || 'gray'
+  return { APPROVED: 'success', PENDING: 'warning', REJECTED: 'error' }[status] || 'neutral'
 }
 
 function getMemberStatusLabel(status: string) {

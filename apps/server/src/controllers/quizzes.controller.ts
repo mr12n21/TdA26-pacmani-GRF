@@ -29,7 +29,7 @@ export const createQuiz = async (req: Request, res: Response) => {
       title,
       description,
       questions,
-    });
+    }, req.user!.globalRole);
 
     if (quiz) {
       const mod = await prisma.module.findUnique({ where: { id: moduleId } });
@@ -70,7 +70,7 @@ export const updateQuiz = async (req: Request, res: Response) => {
       title,
       description,
       questions,
-    });
+    }, req.user!.globalRole);
 
     res.json(quiz ? toQuizResponse(quiz) : null);
   } catch (err: any) {
@@ -85,7 +85,7 @@ export const deleteQuiz = async (req: Request, res: Response) => {
   try {
     const { quizId } = req.params;
     const userId = req.user!.id;
-    await quizzesService.deleteQuiz(quizId, userId);
+    await quizzesService.deleteQuiz(quizId, userId, req.user!.globalRole);
     res.status(204).send();
   } catch (err) {
     handleControllerError(res, err);
@@ -151,7 +151,7 @@ export const createCourseQuiz = async (req: Request, res: Response) => {
       title,
       description,
       questions,
-    });
+    }, req.user?.globalRole);
 
     if (quiz) {
       await recordSystemFeed(courseId, `New quiz added: ${quiz.title}`, {
@@ -201,7 +201,7 @@ export const updateCourseQuiz = async (req: Request, res: Response) => {
       title,
       description,
       questions,
-    });
+    }, req.user?.globalRole);
 
     res.json(updated ? toQuizResponse(updated) : null);
   } catch (err: any) {
@@ -228,7 +228,7 @@ export const deleteCourseQuiz = async (req: Request, res: Response) => {
     if (!course) return res.status(404).json({ message: 'Course not found' });
 
     const userId = req.user?.id ?? course.ownerId;
-    await quizzesService.deleteQuiz(quizId, userId);
+    await quizzesService.deleteQuiz(quizId, userId, req.user?.globalRole);
     res.status(204).send();
   } catch (err) {
     handleControllerError(res, err);
