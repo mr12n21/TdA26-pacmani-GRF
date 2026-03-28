@@ -72,21 +72,21 @@
 /* ── Light theme — Clean SaaS ─────────────────────────────────── */
 :root {
   --ui-bg: #FAFCFE;
-  --ui-bg-muted: #F1F4F8;
+  --ui-bg-muted: #EEF8F4;
   --ui-bg-elevated: #FFFFFF;
-  --ui-bg-accented: #EAF0F6;
+  --ui-bg-accented: #E6F4EE;
   --ui-bg-inverted: #0B0F19;
 
   --ui-text: #111827;
-  --ui-text-muted: #4B5C73;
+  --ui-text-muted: #48655D;
   --ui-text-dimmed: #8B9BB5;
-  --ui-text-tinted: #0070BB;
+  --ui-text-tinted: #2E9B9C;
   --ui-text-highlighted: #0A0E16;
   --ui-text-inverted: #FAFCFE;
 
-  --ui-border: #DDE3EB;
-  --ui-border-muted: #E8EDF3;
-  --ui-border-accented: #C5CDD9;
+  --ui-border: #D6E9E1;
+  --ui-border-muted: #E5F0EB;
+  --ui-border-accented: #BDDACE;
   --ui-border-inverted: #111111;
 }
 
@@ -168,7 +168,7 @@
    TEXT UTILITIES
    ═══════════════════════════════════════════════════════════════ */
 
-.text-accent { color: #0070BB; }
+.text-accent { color: #2E9B9C; }
 .dark .text-accent { color: #6DD4B1; }
 
 .text-highlighted { color: var(--ui-text-highlighted); }

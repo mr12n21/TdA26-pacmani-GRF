@@ -1,0 +1,35 @@
+lektor muze mit vice skol/ firem
+firma/ skola muze mit vic lektoru
+
+jednoduchost vse na par kliku.
+
+z hlediska modulu je treba dojit k zjednosni.
+
+nova architektura databaze a bacnedu
+
+
+databaze bude obshovat name space skoly ktery bude resit to aby uzivatele nebyli anonimi ale byli soucasti nejake organizace.
+
+mame role:
+
+admin
+    -ovlada namespacy vytvarni novych roli spravcu a zaroven muze spravovat lektory. Admin udeleuje nove ucty do platformy/ namespacy pro jednotlive subjekty.
+    -nasledne muze pridavat lektory (ty maji k dispozici formular ktery odeslou a tim se jim ucet presova do stavu cekani naslende admin ho potvrzuje ty co chce.)
+    -stejne tak namespac vznika bud ze admin ho vytvori pres nejake dialogove okno a nebo take ze bude k dispozici formular ktery bude sbirat odpovedi a admin muze potvrzovat nove namespac tim sklle vznika i icet spravce pro spravu jejich lektoru a uzivatelu daneho namespac (prihlasenych nebo neprihlasenych)
+spravce organizace
+    -ma ve sprave lektory dane organizace muze pridelovat nove ze senzamu.
+lektor
+    -muze byt clenem organizaci ma pak pristup k pridavani kvizu/ materialu pro uzivatele. lektor se muze registrovat a ma psitup jen ve svim kuruzm
+
+
+uzivatel
+    -je pozvan pres jedorazovy odkaz lektorem ktery lze nacits pres qr-code nebo pres okaz ktery lektor muze poslat zakum pres email nebo cokoliv jineho. po otevreni odkzu si uzivatel vybere uzvatelske jmeno. (tento ucet je jen pro vuplnovani nebo se muze i regostrovat.)
+
+
+
+zachovej komplexni struktura ale udelej ji novou a integruj veci v ramci db/ prisma a take vyres to aby byla segmentace fakt odelana. a hezka z hlediska nove verze s namespacy 
+
+take vstup do faltormy bude ovlivnem roli uzivatele a namespacem ktery bude integrovat jen veci z daneho namespace.
+
+
+co se tyce prihlasovani beznych uzivatel zatim staci qr-code/ odkaz ktery bude lektor udelaovat pristup do kruzu. Lektor take potrbeuje mit prehled o tom kolik je pripojenych lidi a muze spiuste odkrivat ruzne casi. 

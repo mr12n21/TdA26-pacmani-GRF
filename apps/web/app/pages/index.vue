@@ -53,7 +53,10 @@ const features = [
       <UContainer class="relative">
         <div class="max-w-3xl mx-auto text-center">
           <div class="fade-in mb-8">
-            <img src="/brand/logos/logo-erb.svg" alt="TdA" class="w-16 h-16 mx-auto animate-gentle-float">
+            <div class="hero-logo-wrap">
+              <div class="hero-logo-halo" aria-hidden="true" />
+              <img src="/brand/logos/logo-erb.svg" alt="TdA" class="hero-logo mx-auto animate-gentle-float">
+            </div>
           </div>
 
           <h1 class="text-4xl lg:text-5xl font-bold leading-tight mb-6 fade-in-d1">
@@ -139,3 +142,48 @@ const features = [
     </section>
   </div>
 </template>
+
+<style scoped>
+.hero-logo-wrap {
+  position: relative;
+  width: fit-content;
+  margin-inline: auto;
+  isolation: isolate;
+}
+
+.hero-logo-halo {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 10.5rem;
+  height: 10.5rem;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 35% 35%, rgba(145, 245, 173, 0.34), transparent 62%),
+    radial-gradient(circle at 70% 70%, rgba(0, 112, 187, 0.2), transparent 64%);
+  filter: blur(18px);
+  opacity: 0.9;
+  z-index: -1;
+}
+
+.hero-logo {
+  width: 5.4rem;
+  height: 5.4rem;
+}
+
+@media (min-width: 1024px) {
+  .hero-logo {
+    width: 6.25rem;
+    height: 6.25rem;
+  }
+
+  .hero-logo-halo {
+    width: 12rem;
+    height: 12rem;
+  }
+}
+
+:global(.dark) .hero-logo-halo {
+  opacity: 0.65;
+}
+</style>

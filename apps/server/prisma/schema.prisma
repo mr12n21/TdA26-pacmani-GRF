@@ -8,24 +8,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─── User ────────────────────────────────────────────────────────────
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
+  id           String     @id @default(uuid())
+  email        String     @unique
   passwordHash String
   name         String
-  role         Role
-  createdAt    DateTime @default(now())
+  role         Role       // @deprecated - použij globalRole a NamespaceMember.role
+  globalRole   GlobalRole @default(USER)
+  createdAt    DateTime   @default(now())
 
-  courses       Course[]      @relation("ownedCourses")
-  feedPosts     FeedPost[]    @relation("authoredPosts")
-  likes         Like[]
-  documents     Document[]
-  participants  Participant[]
+  courses          Course[]          @relation("ownedCourses")
+  feedPosts        FeedPost[]        @relation("authoredPosts")
+  likes            Like[]
+  documents        Document[]
+  participants     Participant[]
+  namespaceMembers NamespaceMember[]
+  createdInvites   InviteLink[]      @relation("inviteCreator")
 
   @@index([email])
   @@index([role])
+  @@index([globalRole])
   @@index([createdAt])
 }
 
@@ -35,27 +38,122 @@ enum Role {
   ADMIN
 }
 
+enum GlobalRole {
+  SUPER_ADMIN
+  USER
+}
+
+// ─── Namespace (Multi-tenancy) ───────────────────────────────────────
+
+model Namespace {
+  id          String          @id @default(uuid())
+  name        String
+  slug        String          @unique
+  description String?
+  status      NamespaceStatus @default(ACTIVE)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  members     NamespaceMember[]
+  courses     Course[]
+  feedPosts   FeedPost[]
+  documents   Document[]
+  likes       Like[]
+  inviteLinks InviteLink[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum NamespaceStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+model NamespaceMember {
+  id          String          @id @default(uuid())
+  userId      String
+  namespaceId String
+  role        NamespaceRole
+  status      MemberStatus    @default(PENDING)
+  joinedAt    DateTime        @default(now())
+  approvedAt  DateTime?
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  namespace Namespace @relation(fields: [namespaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, namespaceId])
+  @@index([userId])
+  @@index([namespaceId])
+  @@index([status])
+}
+
+enum NamespaceRole {
+  ORG_ADMIN
+  LECTURER
+  STUDENT
+}
+
+enum MemberStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model InviteLink {
+  id          String       @id @default(uuid())
+  courseId    String
+  namespaceId String
+  token       String       @unique
+  type        InviteLinkType
+  expiresAt   DateTime?
+  usedCount   Int          @default(0)
+  maxUses     Int?
+  createdById String
+  createdAt   DateTime     @default(now())
+
+  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  namespace Namespace @relation(fields: [namespaceId], references: [id], onDelete: Cascade)
+  createdBy User      @relation("inviteCreator", fields: [createdById], references: [id])
+
+  @@index([token])
+  @@index([courseId])
+  @@index([namespaceId])
+  @@index([createdById])
+}
+
+enum InviteLinkType {
+  ONE_TIME
+  PERSISTENT
+}
+
 // ─── Course ──────────────────────────────────────────────────────────
 
 model Course {
   id             String      @id @default(uuid())
   title          String
   description    String?
-  state          CourseState  @default(DRAFT)
+  state          CourseState @default(DRAFT)
   scheduledStart DateTime?
   isDuplicate    Boolean     @default(false)
+  namespaceId    String
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
   ownerId        String
 
-  owner          User          @relation("ownedCourses", fields: [ownerId], references: [id], onDelete: Cascade)
-  modules        Module[]
-  feedPosts      FeedPost[]
-  likes          Like[]
-  participants   Participant[]
-  materialInteractions MaterialInteraction[]
+  owner                 User                    @relation("ownedCourses", fields: [ownerId], references: [id], onDelete: Cascade)
+  namespace             Namespace               @relation(fields: [namespaceId], references: [id], onDelete: Cascade)
+  modules               Module[]
+  feedPosts             FeedPost[]
+  likes                 Like[]
+  participants          Participant[]
+  materialInteractions  MaterialInteraction[]
+  inviteLinks           InviteLink[]
 
   @@index([ownerId])
+  @@index([namespaceId])
   @@index([state])
   @@index([createdAt(sort: Desc)])
   @@index([updatedAt])
@@ -229,20 +327,23 @@ enum MaterialInteractionType {
 // ─── Feed (Info Channel) ─────────────────────────────────────────────
 
 model FeedPost {
-  id        String   @id @default(uuid())
-  courseId   String
-  authorId  String?
-  content   String
-  type      FeedType
-  meta      Json?
-  edited    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  courseId    String
+  namespaceId String
+  authorId    String?
+  content     String
+  type        FeedType
+  meta        Json?
+  edited      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  author    User?    @relation("authoredPosts", fields: [authorId], references: [id])
+  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  namespace Namespace @relation(fields: [namespaceId], references: [id], onDelete: Cascade)
+  author    User?     @relation("authoredPosts", fields: [authorId], references: [id])
 
   @@index([courseId])
+  @@index([namespaceId])
   @@index([authorId])
   @@index([createdAt(sort: Desc)])
 }
@@ -255,17 +356,20 @@ enum FeedType {
 // ─── Likes ───────────────────────────────────────────────────────────
 
 model Like {
-  id        String   @id @default(uuid())
-  userId    String
-  courseId   String
-  createdAt DateTime @default(now())
+  id          String   @id @default(uuid())
+  userId      String
+  courseId    String
+  namespaceId String
+  createdAt   DateTime @default(now())
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  namespace Namespace @relation(fields: [namespaceId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
   @@index([courseId])
   @@index([userId])
+  @@index([namespaceId])
 }
 
 // ─── Documents ───────────────────────────────────────────────────────
@@ -276,12 +380,15 @@ model Document {
   path         String
   originalName String
   uploadedById String
+  namespaceId  String
   title        String?
   description  String?
   createdAt    DateTime @default(now())
 
-  uploadedBy User @relation(fields: [uploadedById], references: [id])
+  uploadedBy User      @relation(fields: [uploadedById], references: [id])
+  namespace  Namespace @relation(fields: [namespaceId], references: [id], onDelete: Cascade)
 
   @@index([uploadedById])
+  @@index([namespaceId])
   @@index([createdAt(sort: Desc)])
 }

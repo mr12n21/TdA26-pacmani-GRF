@@ -12,19 +12,19 @@ const stats = computed(() => {
     },
     {
       title: 'Živě',
-      value: all.filter(c => c.state === 'LIVE').length,
+      value: all.filter((c: any) => c.state === 'LIVE').length,
       icon: 'i-lucide-radio',
       color: 'text-green-500'
     },
     {
       title: 'Koncepty',
-      value: all.filter(c => c.state === 'DRAFT').length,
+      value: all.filter((c: any) => c.state === 'DRAFT').length,
       icon: 'i-lucide-file-edit',
       color: 'text-muted'
     },
     {
       title: 'Archivováno',
-      value: all.filter(c => c.state === 'ARCHIVED').length,
+      value: all.filter((c: any) => c.state === 'ARCHIVED').length,
       icon: 'i-lucide-archive',
       color: 'text-blue-500'
     }
@@ -33,13 +33,13 @@ const stats = computed(() => {
 </script>
 
 <template>
-  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="stats-grid">
     <div
       v-for="stat in stats"
       :key="stat.title"
-      class="flex items-center gap-4 p-4 rounded-lg border border-default bg-default"
+      class="stat-card"
     >
-      <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-muted">
+      <div class="stat-icon">
         <UIcon :name="stat.icon" class="text-lg" :class="stat.color" />
       </div>
       <div>
@@ -49,3 +49,37 @@ const stats = computed(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.stats-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--ui-border);
+  background: color-mix(in oklab, var(--ui-bg-elevated) 88%, transparent);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, #0070BB 50%, var(--ui-border));
+}
+
+.stat-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.7rem;
+  background: color-mix(in oklab, var(--ui-bg-muted) 84%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>

@@ -104,7 +104,6 @@ const searchGroups = computed(() => [{
 
 <style scoped>
 .dashboard-sidebar {
-  background-image: var(--tda-surface-glow-admin);
   background-color: var(--ui-bg-muted);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);

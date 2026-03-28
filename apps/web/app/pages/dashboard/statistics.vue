@@ -42,7 +42,15 @@ onMounted(async () => {
         <p class="text-muted">{{ error }}</p>
       </div>
 
-      <div v-else-if="stats" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section v-else-if="stats" class="statistics-shell">
+        <header class="statistics-head">
+          <h2 class="statistics-title">Přehled metrik platformy</h2>
+          <p class="statistics-lead">
+            Souhrn nejdůležitějších čísel pro monitoring kurzů a zapojení uživatelů.
+          </p>
+        </header>
+
+        <div class="stats-grid">
         <div
           v-for="item in [
             { title: 'Celkový počet kurzů', value: stats.totalCourses, color: 'text-default', icon: 'i-lucide-book-open' },
@@ -53,9 +61,9 @@ onMounted(async () => {
             { title: 'Celkem materiálů', value: stats.totalMaterials, color: 'text-default', icon: 'i-lucide-file' }
           ]"
           :key="item.title"
-          class="flex items-center gap-4 p-5 rounded-lg border border-default bg-default"
+          class="stat-card"
         >
-          <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-muted">
+          <div class="stat-icon-wrap">
             <UIcon :name="item.icon" class="text-lg" :class="item.color" />
           </div>
           <div>
@@ -63,7 +71,70 @@ onMounted(async () => {
             <p class="text-3xl font-bold" :class="item.color">{{ item.value ?? '—' }}</p>
           </div>
         </div>
-      </div>
+        </div>
+      </section>
     </template>
   </UDashboardPanel>
 </template>
+
+<style scoped>
+.statistics-shell {
+  background: var(--ui-bg-elevated);
+  border: 1px solid var(--ui-border-muted);
+  border-radius: 1rem;
+  padding: 1.25rem;
+}
+
+.statistics-head {
+  margin-bottom: 1rem;
+}
+
+.statistics-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.statistics-lead {
+  margin: 0;
+  color: var(--ui-text-muted);
+}
+
+.stats-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--ui-border-muted);
+  background: var(--ui-bg-elevated);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.stat-card:hover {
+  border-color: color-mix(in oklab, #0070BB 45%, var(--ui-border));
+  transform: translateY(-1px);
+}
+
+.stat-icon-wrap {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.7rem;
+  background: color-mix(in oklab, var(--ui-bg-muted) 84%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .statistics-shell {
+    padding: 0.95rem;
+  }
+}
+</style>
