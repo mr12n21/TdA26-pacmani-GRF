@@ -5,8 +5,12 @@ import { toFeedItem } from '../libs/transformers';
 import { prisma } from '../server';
 
 export const recordSystemFeed = async (courseId: string, message: string, meta?: any) => {
+	// Get namespaceId from course
+	const course = await prisma.course.findUnique({ where: { id: courseId }, select: { namespaceId: true } });
+	if (!course) throw new Error('Course not found');
+	
 	const post = await prisma.feedPost.create({
-		data: { id: uuidv4(), courseId, content: message, type: FeedType.AUTO, meta },
+		data: { id: uuidv4(), courseId, namespaceId: course.namespaceId, content: message, type: FeedType.AUTO, meta },
 	});
 	const payload = toFeedItem(post);
 	sendEvent(courseId, 'new_post', payload);
@@ -14,8 +18,12 @@ export const recordSystemFeed = async (courseId: string, message: string, meta?:
 };
 
 export const recordManualFeed = async (courseId: string, authorId: string | null, message: string) => {
+	// Get namespaceId from course
+	const course = await prisma.course.findUnique({ where: { id: courseId }, select: { namespaceId: true } });
+	if (!course) throw new Error('Course not found');
+	
 	const post = await prisma.feedPost.create({
-		data: { id: uuidv4(), courseId, authorId: authorId ?? undefined, content: message, type: FeedType.MANUAL },
+		data: { id: uuidv4(), courseId, namespaceId: course.namespaceId, authorId: authorId ?? undefined, content: message, type: FeedType.MANUAL },
 	});
 	const payload = toFeedItem(post);
 	sendEvent(courseId, 'new_post', payload);

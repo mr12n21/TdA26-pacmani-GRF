@@ -6,6 +6,7 @@ import { errorHandler } from './middleware/error-handler';
 import authRouter from './api/auth/index';
 import coursesRouter from './api/courses/index';
 import adminRouter from './api/admin/index';
+import namespacesRouter from './api/namespaces/index';
 import { materialsDir } from './libs/file.storage';
 import { checkScheduledCourses } from './services/courses.service';
 
@@ -29,6 +30,7 @@ app.get('/api', (req, res) => res.json({ organization: 'Student Cyber Games' }))
 app.use('/api/auth', authRouter);
 app.use('/api/courses', coursesRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api', namespacesRouter);
 
 app.get('/api/health', async (req, res) => {
   try {

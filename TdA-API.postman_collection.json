@@ -1,0 +1,897 @@
+{
+  "info": {
+    "name": "TdA Platform API",
+    "description": "Complete API collection for Think different Academy platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "refreshToken", "value": "", "type": "string" },
+    { "key": "namespaceId", "value": "", "type": "string" },
+    { "key": "courseId", "value": "", "type": "string" },
+    { "key": "moduleId", "value": "", "type": "string" },
+    { "key": "quizId", "value": "", "type": "string" },
+    { "key": "userId", "value": "", "type": "string" },
+    { "key": "memberId", "value": "", "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) pm.collectionVariables.set('token', res.token);",
+                  "if (res.refreshToken) pm.collectionVariables.set('refreshToken', res.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test('Has token', () => pm.expect(res.token).to.be.a('string'));",
+                  "pm.test('Has refreshToken', () => pm.expect(res.refreshToken).to.be.a('string'));",
+                  "pm.test('Has user object', () => pm.expect(res.user).to.be.an('object'));",
+                  "if (res.token) pm.collectionVariables.set('token', res.token);",
+                  "if (res.refreshToken) pm.collectionVariables.set('refreshToken', res.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@tda.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "if (res.token) pm.collectionVariables.set('token', res.token);",
+                  "if (res.refreshToken) pm.collectionVariables.set('refreshToken', res.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/refresh", "host": ["{{baseUrl}}"], "path": ["auth", "refresh"] }
+          }
+        },
+        {
+          "name": "Get Current User (me)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test('Has user data', () => {",
+                  "  pm.expect(res.id).to.be.a('string');",
+                  "  pm.expect(res.email).to.be.a('string');",
+                  "  pm.expect(res.globalRole).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        },
+        {
+          "name": "Switch Namespace",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "if (res.token) pm.collectionVariables.set('token', res.token);",
+                  "if (res.refreshToken) pm.collectionVariables.set('refreshToken', res.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"namespaceId\": \"{{namespaceId}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/switch-namespace", "host": ["{{baseUrl}}"], "path": ["auth", "switch-namespace"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Namespaces",
+      "item": [
+        {
+          "name": "List Namespaces",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns array', () => pm.expect(pm.response.json()).to.be.an('array'));",
+                  "const res = pm.response.json();",
+                  "if (res.length > 0) pm.collectionVariables.set('namespaceId', res[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/namespaces", "host": ["{{baseUrl}}"], "path": ["namespaces"] }
+          }
+        },
+        {
+          "name": "Create Namespace (SUPER_ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Škola\",\n  \"slug\": \"test-skola\",\n  \"description\": \"Testovací organizace\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/namespaces", "host": ["{{baseUrl}}"], "path": ["namespaces"] }
+          }
+        },
+        {
+          "name": "Request New Organization",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Moje Škola\",\n  \"slug\": \"moje-skola\",\n  \"description\": \"Popis školy\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/namespaces/request", "host": ["{{baseUrl}}"], "path": ["namespaces", "request"] }
+          }
+        },
+        {
+          "name": "Get Namespace Detail",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/namespaces/{{namespaceId}}", "host": ["{{baseUrl}}"], "path": ["namespaces", "{{namespaceId}}"] }
+          }
+        },
+        {
+          "name": "Update Namespace (SUPER_ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/namespaces/{{namespaceId}}", "host": ["{{baseUrl}}"], "path": ["namespaces", "{{namespaceId}}"] }
+          }
+        },
+        {
+          "name": "Delete Namespace (SUPER_ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/namespaces/{{namespaceId}}", "host": ["{{baseUrl}}"], "path": ["namespaces", "{{namespaceId}}"] }
+          }
+        },
+        {
+          "name": "List Members",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/namespaces/{{namespaceId}}/members", "host": ["{{baseUrl}}"], "path": ["namespaces", "{{namespaceId}}", "members"] }
+          }
+        },
+        {
+          "name": "Request Membership",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"STUDENT\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/namespaces/{{namespaceId}}/members", "host": ["{{baseUrl}}"], "path": ["namespaces", "{{namespaceId}}", "members"] }
+          }
+        },
+        {
+          "name": "Update Member (approve/reject/role)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/namespaces/{{namespaceId}}/members/{{memberId}}", "host": ["{{baseUrl}}"], "path": ["namespaces", "{{namespaceId}}", "members", "{{memberId}}"] }
+          }
+        },
+        {
+          "name": "Remove Member",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/namespaces/{{namespaceId}}/members/{{memberId}}", "host": ["{{baseUrl}}"], "path": ["namespaces", "{{namespaceId}}", "members", "{{memberId}}"] }
+          }
+        },
+        {
+          "name": "Create Invite Link",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"PERSISTENT\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/namespaces/{{namespaceId}}/invite", "host": ["{{baseUrl}}"], "path": ["namespaces", "{{namespaceId}}", "invite"] }
+          }
+        },
+        {
+          "name": "Join via Invite Link",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/invite/:token", "host": ["{{baseUrl}}"], "path": ["invite", ":token"], "variable": [{ "key": "token", "value": "" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get Platform Stats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test('Has expected fields', () => {",
+                  "  pm.expect(res.totalUsers).to.be.a('number');",
+                  "  pm.expect(res.totalCourses).to.be.a('number');",
+                  "  pm.expect(res.activeCourses).to.be.a('number');",
+                  "  pm.expect(res.totalParticipants).to.be.a('number');",
+                  "  pm.expect(res.totalQuizSubmissions).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/admin/stats", "host": ["{{baseUrl}}"], "path": ["admin", "stats"] }
+          }
+        },
+        {
+          "name": "Get Course Statistics Overview",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test('Has summary and courses', () => {",
+                  "  pm.expect(res.summary).to.be.an('object');",
+                  "  pm.expect(res.courses).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/stats/courses?sortBy=createdAt&sortOrder=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "stats", "courses"],
+              "query": [
+                { "key": "q", "value": "", "disabled": true },
+                { "key": "state", "value": "LIVE", "disabled": true },
+                { "key": "sortBy", "value": "createdAt" },
+                { "key": "sortOrder", "value": "desc" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Users (SUPER_ADMIN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test('Has users array', () => pm.expect(res.users).to.be.an('array'));",
+                  "pm.test('Has total count', () => pm.expect(res.total).to.be.a('number'));",
+                  "if (res.users.length > 0) pm.collectionVariables.set('userId', res.users[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/users?page=1&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users"],
+              "query": [
+                { "key": "q", "value": "", "disabled": true },
+                { "key": "role", "value": "", "disabled": true },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "50" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User Detail (SUPER_ADMIN)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/admin/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["admin", "users", "{{userId}}"] }
+          }
+        },
+        {
+          "name": "Update User (SUPER_ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"globalRole\": \"USER\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/admin/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["admin", "users", "{{userId}}"] }
+          }
+        },
+        {
+          "name": "Delete User (SUPER_ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/admin/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["admin", "users", "{{userId}}"] }
+          }
+        },
+        {
+          "name": "List Documents",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/admin/documents", "host": ["{{baseUrl}}"], "path": ["admin", "documents"] }
+          }
+        },
+        {
+          "name": "Upload Document",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "" },
+                { "key": "title", "value": "Test Document", "type": "text" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/admin/documents", "host": ["{{baseUrl}}"], "path": ["admin", "documents"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Courses",
+      "item": [
+        {
+          "name": "List Courses (Public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "if (Array.isArray(res) && res.length > 0) pm.collectionVariables.set('courseId', res[0].uuid || res[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "auth": { "type": "noauth" },
+            "url": { "raw": "{{baseUrl}}/courses", "host": ["{{baseUrl}}"], "path": ["courses"] }
+          }
+        },
+        {
+          "name": "Create Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const res = pm.response.json();",
+                  "if (res.uuid || res.id) pm.collectionVariables.set('courseId', res.uuid || res.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Course\",\n  \"description\": \"A test course\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/courses", "host": ["{{baseUrl}}"], "path": ["courses"] }
+          }
+        },
+        {
+          "name": "Get Course",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}"] }
+          }
+        },
+        {
+          "name": "Get Course Full Data",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/full-data", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "full-data"] }
+          }
+        },
+        {
+          "name": "Update Course",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Title\",\n  \"description\": \"Updated description\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}"] }
+          }
+        },
+        {
+          "name": "Delete Course",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}"] }
+          }
+        },
+        {
+          "name": "Schedule Course",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startTime\": \"2026-12-31T12:00:00Z\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/schedule", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "schedule"] }
+          }
+        },
+        {
+          "name": "Start Course",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/start", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "start"] }
+          }
+        },
+        {
+          "name": "Pause Course",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/pause", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "pause"] }
+          }
+        },
+        {
+          "name": "Resume Course",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/resume", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "resume"] }
+          }
+        },
+        {
+          "name": "Archive Course",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/archive", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "archive"] }
+          }
+        },
+        {
+          "name": "Revert to Draft",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/revert-to-draft", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "revert-to-draft"] }
+          }
+        },
+        {
+          "name": "Duplicate Course",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/duplicate", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "duplicate"] }
+          }
+        },
+        {
+          "name": "Like Course",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/like", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "like"] }
+          }
+        },
+        {
+          "name": "Unlike Course",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/like", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "like"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Modules",
+      "item": [
+        {
+          "name": "List Modules",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "if (Array.isArray(res) && res.length > 0) pm.collectionVariables.set('moduleId', res[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/modules", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "modules"] }
+          }
+        },
+        {
+          "name": "Create Module",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('moduleId', res.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Module\",\n  \"description\": \"Module description\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/modules", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "modules"] }
+          }
+        },
+        {
+          "name": "Update Module",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Module Title\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/modules/{{moduleId}}", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "modules", "{{moduleId}}"] }
+          }
+        },
+        {
+          "name": "Delete Module",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/modules/{{moduleId}}", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "modules", "{{moduleId}}"] }
+          }
+        },
+        {
+          "name": "Reorder Module",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order\": 0\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/modules/{{moduleId}}/reorder", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "modules", "{{moduleId}}", "reorder"] }
+          }
+        },
+        {
+          "name": "Reveal Module",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/modules/{{moduleId}}/reveal", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "modules", "{{moduleId}}", "reveal"] }
+          }
+        },
+        {
+          "name": "Hide Module",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/modules/{{moduleId}}/hide", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "modules", "{{moduleId}}", "hide"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Materials",
+      "item": [
+        {
+          "name": "List Materials",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/modules/{{moduleId}}/materials", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "modules", "{{moduleId}}", "materials"] }
+          }
+        },
+        {
+          "name": "Create Material (URL)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"URL\",\n  \"title\": \"Example Link\",\n  \"url\": \"https://example.com\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/modules/{{moduleId}}/materials", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "modules", "{{moduleId}}", "materials"] }
+          }
+        },
+        {
+          "name": "Create Material (File Upload)",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "type", "value": "FILE", "type": "text" },
+                { "key": "title", "value": "Uploaded File", "type": "text" },
+                { "key": "file", "type": "file", "src": "" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/modules/{{moduleId}}/materials", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "modules", "{{moduleId}}", "materials"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quizzes",
+      "item": [
+        {
+          "name": "List Quizzes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (Array.isArray(res) && res.length > 0) pm.collectionVariables.set('quizId', res[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/modules/{{moduleId}}/quizzes", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "modules", "{{moduleId}}", "quizzes"] }
+          }
+        },
+        {
+          "name": "Create Quiz",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('quizId', res.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Quiz\",\n  \"questions\": [\n    {\n      \"text\": \"What is 2+2?\",\n      \"type\": \"SINGLE_CHOICE\",\n      \"choices\": [\"3\", \"4\", \"5\"],\n      \"correctAnswer\": 1\n    },\n    {\n      \"text\": \"Is sky blue?\",\n      \"type\": \"TRUE_FALSE\",\n      \"correctAnswer\": true\n    }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/modules/{{moduleId}}/quizzes", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "modules", "{{moduleId}}", "quizzes"] }
+          }
+        },
+        {
+          "name": "Submit Quiz",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": [\n    { \"uuid\": \"question-id-here\", \"selectedIndex\": 1 },\n    { \"uuid\": \"question-id-here\", \"selectedAnswer\": true }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/modules/{{moduleId}}/quizzes/{{quizId}}/submit", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "modules", "{{moduleId}}", "quizzes", "{{quizId}}", "submit"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Participants",
+      "item": [
+        {
+          "name": "Join Course",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nickname\": \"TestPlayer\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/join", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "join"] }
+          }
+        },
+        {
+          "name": "List Participants",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/participants", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "participants"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Statistics",
+      "item": [
+        {
+          "name": "Course Stats",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/stats", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "stats"] }
+          }
+        },
+        {
+          "name": "Quiz Dashboard",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/stats/quiz-dashboard", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "stats", "quiz-dashboard"] }
+          }
+        },
+        {
+          "name": "Leaderboard",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/stats/leaderboard", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "stats", "leaderboard"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Feed",
+      "item": [
+        {
+          "name": "Get Feed",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/feed", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "feed"] }
+          }
+        },
+        {
+          "name": "Create Feed Post",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Hello students!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/courses/{{courseId}}/feed", "host": ["{{baseUrl}}"], "path": ["courses", "{{courseId}}", "feed"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('DB connected', () => pm.expect(pm.response.json().db).to.eql('connected'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "auth": { "type": "noauth" },
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          }
+        },
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "noauth" },
+            "url": { "raw": "{{baseUrl}}", "host": ["{{baseUrl}}"] }
+          }
+        }
+      ]
+    }
+  ]
+}

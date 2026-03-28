@@ -27,7 +27,8 @@ async function getQuizOrThrow(quizId: string) {
   return quiz;
 }
 
-async function assertQuizEditPermission(userId: string, ownerId: string) {
+async function assertQuizEditPermission(userId: string, ownerId: string, globalRole?: string) {
+  if (globalRole === 'SUPER_ADMIN') return;
   if (userId === ownerId) return;
 
   const user = await prisma.user.findUnique({
@@ -119,10 +120,11 @@ export const createQuiz = async (
   moduleId: string,
   userId: string,
   data: { title: string; description?: string; questions?: any[] },
+  globalRole?: string,
 ) => {
   const mod = await getModuleOrThrow(moduleId);
   const course = await getCourseOrThrow(mod.courseId);
-  await assertQuizEditPermission(userId, course.ownerId);
+  await assertQuizEditPermission(userId, course.ownerId, globalRole);
   assertDraftState(course.state);
 
   const quizId = uuidv4();
@@ -160,11 +162,12 @@ export const updateQuiz = async (
   quizId: string,
   userId: string,
   data: { title?: string; description?: string; questions?: any[] },
+  globalRole?: string,
 ) => {
   const quiz = await getQuizOrThrow(quizId);
   const mod = await getModuleOrThrow(quiz.moduleId);
   const course = await getCourseOrThrow(mod.courseId);
-  await assertQuizEditPermission(userId, course.ownerId);
+  await assertQuizEditPermission(userId, course.ownerId, globalRole);
   assertDraftState(course.state);
 
   await prisma.quiz.update({
@@ -197,11 +200,11 @@ export const updateQuiz = async (
   return updated;
 };
 
-export const deleteQuiz = async (quizId: string, userId: string) => {
+export const deleteQuiz = async (quizId: string, userId: string, globalRole?: string) => {
   const quiz = await getQuizOrThrow(quizId);
   const mod = await getModuleOrThrow(quiz.moduleId);
   const course = await getCourseOrThrow(mod.courseId);
-  await assertQuizEditPermission(userId, course.ownerId);
+  await assertQuizEditPermission(userId, course.ownerId, globalRole);
   assertDraftState(course.state);
 
   await prisma.quiz.delete({ where: { id: quizId } });

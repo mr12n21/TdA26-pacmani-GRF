@@ -131,9 +131,10 @@ export const createModule = async (
   courseId: string,
   userId: string,
   data: { title: string; description?: string; order?: number },
+  globalRole?: string,
 ) => {
   const course = await getCourseOrThrow(courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   assertDraftState(course.state);
 
   const created = await prisma.$transaction(async (tx) => {
@@ -193,10 +194,11 @@ export const updateModule = async (
   moduleId: string,
   userId: string,
   data: { title?: string; description?: string; order?: number },
+  globalRole?: string,
 ) => {
   const mod = await getModuleOrThrow(moduleId);
   const course = await getCourseOrThrow(mod.courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   assertDraftState(course.state);
 
   const updated = await prisma.$transaction(async (tx) => {
@@ -262,10 +264,10 @@ export const updateModule = async (
   return updated;
 };
 
-export const deleteModule = async (moduleId: string, userId: string) => {
+export const deleteModule = async (moduleId: string, userId: string, globalRole?: string) => {
   const mod = await getModuleOrThrow(moduleId);
   const course = await getCourseOrThrow(mod.courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   assertDraftState(course.state);
 
   await prisma.$transaction(async (tx) => {
@@ -287,10 +289,11 @@ export const reorderModule = async (
   courseId: string,
   moduleId: string,
   newOrder: number,
-  userId: string
+  userId: string,
+  globalRole?: string,
 ) => {
   const course = await getCourseOrThrow(courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   assertDraftState(course.state);
 
   const mod = await getModuleOrThrow(moduleId);
@@ -351,9 +354,9 @@ export const reorderModule = async (
 
 // ── Reveal / Hide (LIVE only) ────────────────────────────────────────
 
-export const revealModule = async (moduleId: string, courseId: string, userId: string) => {
+export const revealModule = async (moduleId: string, courseId: string, userId: string, globalRole?: string) => {
   const course = await getCourseOrThrow(courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
 
   if (course.state !== CourseState.LIVE) {
     throw new StateTransitionError('Modules can only be revealed during a live session.');
@@ -385,9 +388,9 @@ export const revealModule = async (moduleId: string, courseId: string, userId: s
   return updated;
 };
 
-export const hideModule = async (moduleId: string, courseId: string, userId: string) => {
+export const hideModule = async (moduleId: string, courseId: string, userId: string, globalRole?: string) => {
   const course = await getCourseOrThrow(courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
 
   if (course.state !== CourseState.LIVE) {
     throw new StateTransitionError('Modules can only be hidden during a live session.');

@@ -1,9 +1,8 @@
 http://:80 {
-    # Proxy API and health endpoints to the backend container
     reverse_proxy /api/* tda_backend:3000
     reverse_proxy /health tda_backend:3000
 
     # All other requests -> frontend container
     reverse_proxy * tda_frontend:3001
-    
+
 }

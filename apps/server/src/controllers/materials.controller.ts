@@ -74,7 +74,7 @@ export const createMaterial = async (req: Request, res: Response) => {
       } catch { /* ignore fetch errors */ }
     }
 
-    const material = await materialsService.createMaterial(moduleId, userId, data);
+    const material = await materialsService.createMaterial(moduleId, userId, data, req.user!.globalRole);
 
     const mod = await prisma.module.findUnique({ where: { id: moduleId } });
     if (mod) {
@@ -119,7 +119,7 @@ export const updateMaterial = async (req: Request, res: Response) => {
       } catch { /* ignore */ }
     }
 
-    const material = await materialsService.updateMaterial(materialId, userId, data);
+    const material = await materialsService.updateMaterial(materialId, userId, data, req.user!.globalRole);
     res.json(toMaterialResponse(material));
   } catch (err) {
     handleControllerError(res, err);
@@ -130,7 +130,7 @@ export const deleteMaterial = async (req: Request, res: Response) => {
   try {
     const { materialId } = req.params;
     const userId = req.user!.id;
-    await materialsService.deleteMaterial(materialId, userId);
+    await materialsService.deleteMaterial(materialId, userId, req.user!.globalRole);
     res.status(204).send();
   } catch (err) {
     handleControllerError(res, err);
@@ -142,7 +142,7 @@ export const reorderMaterial = async (req: Request, res: Response) => {
     const { moduleId, materialId } = req.params;
     const { newOrder } = req.body;
     const userId = req.user!.id;
-    const material = await materialsService.reorderMaterial(materialId, moduleId, newOrder, userId);
+    const material = await materialsService.reorderMaterial(materialId, moduleId, newOrder, userId, req.user!.globalRole);
     res.json(toMaterialResponse(material));
   } catch (err) {
     handleControllerError(res, err);
@@ -213,7 +213,7 @@ export const createCourseMaterial = async (req: Request, res: Response) => {
       } catch { /* ignore fetch errors */ }
     }
 
-    const material = await materialsService.createMaterial(mod.id, userId, data);
+    const material = await materialsService.createMaterial(mod.id, userId, data, req.user?.globalRole);
     await recordSystemFeed(courseId, `New material added: ${material.title}`, {
       materialId: material.id,
       moduleId: mod.id,
@@ -263,7 +263,7 @@ export const updateCourseMaterial = async (req: Request, res: Response) => {
       } catch { /* ignore */ }
     }
 
-    const updated = await materialsService.updateMaterial(materialId, userId, data);
+    const updated = await materialsService.updateMaterial(materialId, userId, data, req.user?.globalRole);
     res.json(toMaterialResponse(updated));
   } catch (err) {
     handleControllerError(res, err);
@@ -283,7 +283,7 @@ export const deleteCourseMaterial = async (req: Request, res: Response) => {
     if (!course) return res.status(404).json({ message: 'Course not found' });
 
     const userId = req.user?.id ?? course.ownerId;
-    await materialsService.deleteMaterial(materialId, userId);
+    await materialsService.deleteMaterial(materialId, userId, req.user?.globalRole);
     res.status(204).send();
   } catch (err) {
     handleControllerError(res, err);
@@ -340,6 +340,7 @@ export const assignCourseMaterialToModule = async (req: Request, res: Response) 
       materialId,
       moduleId,
       userId,
+      req.user?.globalRole,
     );
 
     res.json(toMaterialResponse(updated));

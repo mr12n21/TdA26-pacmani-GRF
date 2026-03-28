@@ -4,7 +4,10 @@ import { config } from '../config/index';
 
 interface User {
   id: string;
-  role: string;
+  role: string; // @deprecated - použij globalRole
+  globalRole?: string;
+  activeNamespaceId?: string;
+  namespaceMemberRole?: string;
 }
 
 declare global {
