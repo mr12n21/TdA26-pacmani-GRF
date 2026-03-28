@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 const prisma = new PrismaClient();
 
-// ─── Namespace Management ────────────────────────────────────────────
 
 export async function createNamespace(data: {
   name: string;
@@ -18,12 +17,6 @@ export async function createNamespace(data: {
   });
 }
 
-/**
- * Vytvoří žádost o novou organizaci (namespace)
- * - Namespace je vytvořen s status PENDING
- * - Uživatel je přiřazen jako ORG_ADMIN s status PENDING
- * - SUPER_ADMIN musí schválit
- */
 export async function requestNewOrganization(data: {
   userId: string;
   name: string;
@@ -34,7 +27,7 @@ export async function requestNewOrganization(data: {
   country?: string;
 }) {
   return prisma.$transaction(async (tx) => {
-    // 1. Vytvořit namespace s PENDING statusem
+
     const namespace = await tx.namespace.create({
       data: {
         name: data.name,
@@ -44,7 +37,6 @@ export async function requestNewOrganization(data: {
       },
     });
 
-    // 2. Přidat uživatele jako ORG_ADMIN s PENDING statusem
     const membership = await tx.namespaceMember.create({
       data: {
         userId: data.userId,
@@ -68,7 +60,6 @@ export async function requestNewOrganization(data: {
 }
 
 export async function listNamespaces(userId?: string, globalRole?: string) {
-  // SUPER_ADMIN vidí všechny
   if (globalRole === GlobalRole.SUPER_ADMIN) {
     return prisma.namespace.findMany({
       orderBy: { createdAt: 'desc' },
@@ -83,7 +74,6 @@ export async function listNamespaces(userId?: string, globalRole?: string) {
     });
   }
 
-  // Ostatní vidí jen své namespaces
   if (!userId) {
     return [];
   }
@@ -138,7 +128,6 @@ export async function updateNamespace(namespaceId: string, data: {
       data,
     });
 
-    // When namespace is approved (ACTIVE), auto-approve all PENDING members
     if (data.status === NamespaceStatus.ACTIVE) {
       await tx.namespaceMember.updateMany({
         where: {
@@ -162,7 +151,6 @@ export async function deleteNamespace(namespaceId: string) {
   });
 }
 
-// ─── Namespace Members Management ────────────────────────────────────
 
 export async function listMembers(namespaceId: string) {
   return prisma.namespaceMember.findMany({
@@ -231,7 +219,90 @@ export async function getMemberByUserAndNamespace(userId: string, namespaceId: s
   });
 }
 
-// ─── Invite Links Management ─────────────────────────────────────────
+export async function addMemberDirectly(data: {
+  userId: string;
+  namespaceId: string;
+  role: NamespaceRole;
+}) {
+  const user = await prisma.user.findUnique({ where: { id: data.userId } });
+  if (!user) throw new Error('User not found');
+
+  const namespace = await prisma.namespace.findUnique({ where: { id: data.namespaceId } });
+  if (!namespace) throw new Error('Namespace not found');
+
+  const existing = await prisma.namespaceMember.findUnique({
+    where: { userId_namespaceId: { userId: data.userId, namespaceId: data.namespaceId } },
+  });
+  if (existing) throw new Error('User is already a member of this namespace');
+
+  return prisma.namespaceMember.create({
+    data: {
+      userId: data.userId,
+      namespaceId: data.namespaceId,
+      role: data.role,
+      status: MemberStatus.APPROVED,
+      approvedAt: new Date(),
+    },
+    include: {
+      user: { select: { id: true, email: true, name: true } },
+    },
+  });
+}
+
+export async function searchUsersForNamespace(namespaceId: string, query: string) {
+  const existingMemberIds = await prisma.namespaceMember.findMany({
+    where: { namespaceId },
+    select: { userId: true },
+  });
+  const excludeIds = existingMemberIds.map(m => m.userId);
+
+  return prisma.user.findMany({
+    where: {
+      id: { notIn: excludeIds },
+      OR: [
+        { name: { contains: query, mode: 'insensitive' } },
+        { email: { contains: query, mode: 'insensitive' } },
+      ],
+    },
+    select: { id: true, name: true, email: true, globalRole: true },
+    take: 20,
+  });
+}
+
+export async function listNamespaceQuizzes(namespaceId: string) {
+  const courses = await prisma.course.findMany({
+    where: { namespaceId },
+    include: {
+      modules: {
+        include: {
+          quizzes: {
+            include: { questions: true },
+            orderBy: { createdAt: 'desc' },
+          },
+        },
+        orderBy: { order: 'asc' },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  const quizzes: any[] = [];
+  for (const course of courses) {
+    for (const mod of course.modules) {
+      for (const quiz of mod.quizzes) {
+        quizzes.push({
+          ...quiz,
+          courseName: course.title,
+          courseId: course.id,
+          courseState: course.state,
+          moduleName: mod.title,
+        });
+      }
+    }
+  }
+  return quizzes;
+}
+
 
 export async function createInviteLink(data: {
   courseId: string;
@@ -241,7 +312,7 @@ export async function createInviteLink(data: {
   expiresAt?: Date;
   maxUses?: number;
 }) {
-  // Použij uuid pro token (32 znaků bez pomlček)
+  //
   const token = uuidv4().replace(/-/g, '');
 
   return prisma.inviteLink.create({
@@ -286,9 +357,6 @@ export async function deleteInviteLink(inviteLinkId: string) {
   });
 }
 
-/**
- * Validuje, zda invite link je stále platný pro použití
- */
 export function validateInviteLink(inviteLink: any): { valid: boolean; error?: string } {
   if (!inviteLink) {
     return { valid: false, error: 'Invite link not found' };

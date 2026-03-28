@@ -103,7 +103,16 @@
 
         <!-- Members -->
         <div class="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-bg)] p-6">
-          <h2 class="text-lg font-bold mb-4">Členové organizace</h2>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold">Členové organizace</h2>
+            <UButton
+              icon="i-heroicons-user-plus"
+              label="Přidat člena"
+              color="primary"
+              variant="soft"
+              @click="showAddMemberModal = true"
+            />
+          </div>
           <UTable
             :data="members"
             :columns="memberColumns"
@@ -162,6 +171,73 @@
         </div>
       </div>
     </UDashboardPanel>
+
+    <!-- Add Member Modal -->
+    <UModal v-model:open="showAddMemberModal">
+      <template #content>
+        <UCard>
+          <template #header>
+            <h2 class="text-xl font-bold">Přidat člena do organizace</h2>
+          </template>
+
+          <div class="space-y-4">
+            <UFormField label="Vyhledat uživatele">
+              <UInput
+                v-model="userSearchQuery"
+                placeholder="Jméno nebo email..."
+                icon="i-heroicons-magnifying-glass"
+                @input="debouncedSearchUsers"
+              />
+            </UFormField>
+
+            <div v-if="searchingUsers" class="flex justify-center py-4">
+              <UIcon name="i-lucide-loader-2" class="animate-spin text-xl text-muted" />
+            </div>
+
+            <div v-else-if="searchResults.length > 0" class="max-h-60 overflow-y-auto space-y-2">
+              <div
+                v-for="u in searchResults"
+                :key="u.id"
+                class="flex items-center justify-between p-3 rounded-lg border border-[var(--ui-border)] hover:bg-[var(--ui-bg-elevated)] cursor-pointer transition-colors"
+                :class="{ 'ring-2 ring-[var(--ui-primary)]': selectedUserId === u.id }"
+                @click="selectedUserId = u.id"
+              >
+                <div>
+                  <p class="font-semibold">{{ u.name }}</p>
+                  <p class="text-sm text-[var(--ui-text-muted)]">{{ u.email }}</p>
+                </div>
+                <UIcon v-if="selectedUserId === u.id" name="i-heroicons-check-circle" class="text-[var(--ui-primary)] w-5 h-5" />
+              </div>
+            </div>
+
+            <div v-else-if="userSearchQuery.length >= 2" class="text-sm text-[var(--ui-text-muted)] text-center py-4">
+              Žádní uživatelé nenalezeni
+            </div>
+
+            <UFormField label="Role">
+              <USelectMenu
+                v-model="addMemberRole"
+                :options="addMemberRoleOptions"
+                value-attribute="value"
+              />
+            </UFormField>
+
+            <div class="flex justify-end gap-3 pt-2">
+              <UButton color="neutral" variant="ghost" @click="showAddMemberModal = false">
+                Zrušit
+              </UButton>
+              <UButton
+                :disabled="!selectedUserId"
+                :loading="addingMember"
+                @click="addMember"
+              >
+                Přidat
+              </UButton>
+            </div>
+          </div>
+        </UCard>
+      </template>
+    </UModal>
   </UDashboardPage>
 </template>
 
@@ -174,7 +250,7 @@ definePageMeta({
 })
 
 const route = useRoute()
-const { get, patch, del } = useApi()
+const { get, patch, del, post } = useApi()
 const toast = useToast()
 
 const namespaceId = route.params.id as string
@@ -183,6 +259,21 @@ const members = ref<any[]>([])
 const loading = ref(true)
 const loadingMembers = ref(true)
 const updatingStatus = ref(false)
+
+// Add member state
+const showAddMemberModal = ref(false)
+const userSearchQuery = ref('')
+const searchResults = ref<any[]>([])
+const searchingUsers = ref(false)
+const selectedUserId = ref('')
+const addMemberRole = ref('LECTURER')
+const addingMember = ref(false)
+
+const addMemberRoleOptions = [
+  { label: 'Správce', value: 'ORG_ADMIN' },
+  { label: 'Lektor', value: 'LECTURER' },
+  { label: 'Student', value: 'STUDENT' }
+]
 
 const memberColumns: TableColumn<any>[] = [
   { accessorKey: 'user', header: 'Uživatel' },
@@ -263,6 +354,51 @@ async function removeMemberAction(memberId: string) {
   } catch (err) {
     console.error('Failed to remove member:', err)
     toast.add({ title: 'Chyba', color: 'error' })
+  }
+}
+
+// ── Add Member ───────────────────────────────────────────────────────
+
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+function debouncedSearchUsers() {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => searchUsers(), 300)
+}
+
+async function searchUsers() {
+  if (userSearchQuery.value.length < 2) {
+    searchResults.value = []
+    return
+  }
+  searchingUsers.value = true
+  try {
+    searchResults.value = await get(`/namespaces/${namespaceId}/members/search?q=${encodeURIComponent(userSearchQuery.value)}`)
+  } catch (err) {
+    console.error('Failed to search users:', err)
+  } finally {
+    searchingUsers.value = false
+  }
+}
+
+async function addMember() {
+  if (!selectedUserId.value) return
+  addingMember.value = true
+  try {
+    await post(`/namespaces/${namespaceId}/members/add`, {
+      userId: selectedUserId.value,
+      role: addMemberRole.value,
+    })
+    toast.add({ title: 'Člen úspěšně přidán', color: 'success' })
+    showAddMemberModal.value = false
+    selectedUserId.value = ''
+    userSearchQuery.value = ''
+    searchResults.value = []
+    await loadMembers()
+  } catch (err: any) {
+    console.error('Failed to add member:', err)
+    toast.add({ title: err?.data?.error || 'Chyba při přidávání člena', color: 'error' })
+  } finally {
+    addingMember.value = false
   }
 }
 

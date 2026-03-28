@@ -33,6 +33,7 @@ export function useSSE() {
     'updated_post',
     'deleted_post',
     'participant_joined',
+    'participant_kicked',
     'module_created',
     'module_updated',
     'module_deleted',

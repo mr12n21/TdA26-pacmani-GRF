@@ -125,7 +125,6 @@ export const createQuiz = async (
   const mod = await getModuleOrThrow(moduleId);
   const course = await getCourseOrThrow(mod.courseId);
   await assertQuizEditPermission(userId, course.ownerId, globalRole);
-  assertDraftState(course.state);
 
   const quizId = uuidv4();
   const quiz = await prisma.quiz.create({
@@ -161,20 +160,20 @@ export const createQuiz = async (
 export const updateQuiz = async (
   quizId: string,
   userId: string,
-  data: { title?: string; description?: string; questions?: any[] },
+  data: { title?: string; description?: string; isVisible?: boolean; questions?: any[] },
   globalRole?: string,
 ) => {
   const quiz = await getQuizOrThrow(quizId);
   const mod = await getModuleOrThrow(quiz.moduleId);
   const course = await getCourseOrThrow(mod.courseId);
   await assertQuizEditPermission(userId, course.ownerId, globalRole);
-  assertDraftState(course.state);
 
   await prisma.quiz.update({
     where: { id: quizId },
     data: {
       ...(data.title !== undefined && { title: data.title }),
       ...(data.description !== undefined && { description: data.description }),
+      ...(data.isVisible !== undefined && { isVisible: data.isVisible }),
     },
   });
 
@@ -205,7 +204,6 @@ export const deleteQuiz = async (quizId: string, userId: string, globalRole?: st
   const mod = await getModuleOrThrow(quiz.moduleId);
   const course = await getCourseOrThrow(mod.courseId);
   await assertQuizEditPermission(userId, course.ownerId, globalRole);
-  assertDraftState(course.state);
 
   await prisma.quiz.delete({ where: { id: quizId } });
   

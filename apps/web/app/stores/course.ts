@@ -180,7 +180,7 @@ export const useCourseStore = defineStore('course', () => {
   const isLive = computed(() => courseState.value === 'LIVE')
   const isPaused = computed(() => courseState.value === 'PAUSED')
   const isArchived = computed(() => courseState.value === 'ARCHIVED')
-  const isEditable = computed(() => courseState.value === 'DRAFT')
+  const isEditable = computed(() => courseState.value !== 'ARCHIVED')
 
   // ── Fetch actions ──────────────────────────────────────────────────
   async function fetchCourses() {

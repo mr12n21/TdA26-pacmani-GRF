@@ -6,6 +6,7 @@ import * as quizzesCtrl from '../../controllers/quizzes.controller';
 import * as feedCtrl from '../../controllers/feed.controller';
 import * as participantsCtrl from '../../controllers/participants.controller';
 import * as statisticsCtrl from '../../controllers/statistics.controller';
+import * as sessionsCtrl from '../../controllers/sessions.controller';
 import multer from 'multer';
 import { storage } from '../../libs/file.storage';
 import { authMiddleware, optionalAuthMiddleware } from '../../middleware/auth.middleware';
@@ -81,6 +82,12 @@ router.post('/:courseId/modules/:moduleId/quizzes/:quizId/submit', optionalAuthM
 router.post('/:courseId/join', optionalAuthMiddleware, validationMiddleware(participantJoinSchema), participantsCtrl.joinCourse);
 router.get('/:courseId/participants', ...lecturerOnly, participantsCtrl.listParticipants);
 router.patch('/:courseId/participants/:participantId', optionalAuthMiddleware, participantsCtrl.updateParticipant);
+router.delete('/:courseId/participants/:participantId', ...lecturerOnly, participantsCtrl.kickParticipant);
+
+// ── Session Codes (QR join) ──────────────────────────────────────────
+router.post('/:courseId/session', ...lecturerOnly, sessionsCtrl.createSession);
+router.get('/:courseId/session', ...lecturerOnly, sessionsCtrl.getActiveSession);
+router.delete('/:courseId/session', ...lecturerOnly, sessionsCtrl.deactivateSession);
 
 // ── Statistics ───────────────────────────────────────────────────────
 router.get('/:courseId/stats', ...lecturerOnly, statisticsCtrl.getCourseStats);
