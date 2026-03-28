@@ -204,6 +204,59 @@ export async function removeMemberHandler(req: Request, res: Response) {
   }
 }
 
+export async function addMemberDirectlyHandler(req: Request, res: Response) {
+  try {
+    const { namespaceId } = req.params;
+    const { userId, role } = req.body;
+
+    if (!userId || !role) {
+      return res.status(400).json({ error: 'userId and role are required' });
+    }
+
+    const member = await namespacesService.addMemberDirectly({
+      userId,
+      namespaceId,
+      role: role as NamespaceRole,
+    });
+
+    return res.status(201).json(member);
+  } catch (error: any) {
+    if (error?.message === 'User is already a member of this namespace') {
+      return res.status(400).json({ error: error.message });
+    }
+    if (error?.message === 'User not found') {
+      return res.status(404).json({ error: error.message });
+    }
+    return handleControllerError(res, error);
+  }
+}
+
+export async function searchUsersForNamespaceHandler(req: Request, res: Response) {
+  try {
+    const { namespaceId } = req.params;
+    const query = (req.query.q as string) || '';
+
+    if (query.length < 2) {
+      return res.json([]);
+    }
+
+    const users = await namespacesService.searchUsersForNamespace(namespaceId, query);
+    return res.json(users);
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+}
+
+export async function listNamespaceQuizzesHandler(req: Request, res: Response) {
+  try {
+    const { namespaceId } = req.params;
+    const quizzes = await namespacesService.listNamespaceQuizzes(namespaceId);
+    return res.json(quizzes);
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+}
+
 // ─── Invite Links ────────────────────────────────────────────────────
 
 export async function createInviteLinkHandler(req: Request, res: Response) {

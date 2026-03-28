@@ -7,6 +7,8 @@ import authRouter from './api/auth/index';
 import coursesRouter from './api/courses/index';
 import adminRouter from './api/admin/index';
 import namespacesRouter from './api/namespaces/index';
+import * as sessionsCtrl from './controllers/sessions.controller';
+import { optionalAuthMiddleware } from './middleware/auth.middleware';
 import { materialsDir } from './libs/file.storage';
 import { checkScheduledCourses } from './services/courses.service';
 
@@ -31,6 +33,10 @@ app.use('/api/auth', authRouter);
 app.use('/api/courses', coursesRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api', namespacesRouter);
+
+// ── Public session endpoints (no auth required) ──────────────────────
+app.post('/api/session/validate', sessionsCtrl.validateSession);
+app.post('/api/session/join', optionalAuthMiddleware, sessionsCtrl.joinViaSession);
 
 app.get('/api/health', async (req, res) => {
   try {

@@ -151,6 +151,7 @@ export function toQuizResponse(quiz: Quiz & { questions?: Question[] }) {
     moduleId: quiz.moduleId,
     title: quiz.title,
     description: quiz.description ?? '',
+    isVisible: quiz.isVisible,
     attemptsCount: quiz.timesTaken,
     questions: (quiz.questions || []).map(mapQuestion),
   };

@@ -44,6 +44,7 @@ export const listParticipants = async (req: Request, res: Response) => {
       userId: p.userId,
       user: p.user ? { id: p.user.id, name: p.user.name } : null,
       joinedAt: p.joinedAt,
+      kickedAt: p.kickedAt,
     })));
   } catch (err) {
     handleControllerError(res, err);
@@ -64,6 +65,24 @@ export const updateParticipant = async (req: Request, res: Response) => {
     res.json({
       participantId: updated.id,
       nickname: updated.nickname,
+    });
+  } catch (err) {
+    handleControllerError(res, err);
+  }
+};
+
+/**
+ * DELETE /courses/:courseId/participants/:participantId
+ * Kick a participant from the course (lecturer only).
+ */
+export const kickParticipant = async (req: Request, res: Response) => {
+  try {
+    const { courseId, participantId } = req.params;
+    const kicked = await participantsService.kickParticipant(courseId, participantId);
+    res.json({
+      participantId: kicked.id,
+      nickname: kicked.nickname,
+      kickedAt: kicked.kickedAt,
     });
   } catch (err) {
     handleControllerError(res, err);

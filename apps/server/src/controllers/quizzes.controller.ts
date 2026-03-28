@@ -64,11 +64,12 @@ export const updateQuiz = async (req: Request, res: Response) => {
   try {
     const { quizId } = req.params;
     const userId = req.user!.id;
-    const { title, description, questions } = req.body;
+    const { title, description, isVisible, questions } = req.body;
 
     const quiz = await quizzesService.updateQuiz(quizId, userId, {
       title,
       description,
+      isVisible,
       questions,
     }, req.user!.globalRole);
 
@@ -195,11 +196,12 @@ export const updateCourseQuiz = async (req: Request, res: Response) => {
     if (!course) return res.status(404).json({ message: 'Course not found' });
 
     const userId = req.user?.id ?? course.ownerId;
-    const { title, description, questions } = req.body;
+    const { title, description, isVisible, questions } = req.body;
 
     const updated = await quizzesService.updateQuiz(quizId, userId, {
       title,
       description,
+      isVisible,
       questions,
     }, req.user?.globalRole);
 

@@ -64,6 +64,12 @@ const links = computed<NavigationMenuItem[][]>(() => {
         onSelect: () => { open.value = false }
       },
       {
+        label: 'Kvízy',
+        icon: 'i-lucide-file-question',
+        to: '/dashboard/quizzes',
+        onSelect: () => { open.value = false }
+      },
+      {
         label: 'Statistiky',
         icon: 'i-lucide-bar-chart-3',
         to: '/dashboard/statistics',
