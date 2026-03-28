@@ -12,19 +12,23 @@ containers:
   - name: server
     image: registry.tourde.cloud/pacmani/server
     port: 3000
-    command: sh -c "npx prisma db push --schema=prisma/schema.prisma && npx ts-node prisma/seed.ts && node dist/src/index.js"
+    command: sh -c "/entrypoint-migrate.sh && sh start.sh"
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/coursesportal?schema=public
+      DB_HOST: localhost
+      DB_PORT: 5432
+      PORT: 3000
       CORS_ORIGIN: https://pacmani-v20audsx.tourde.app
       JWT_SECRET: secretkey
+      JWT_EXPIRES_IN: 30d
       NODE_ENV: production
   - name: web
     image: registry.tourde.cloud/pacmani/web
     port: 3001
     env:
-      NODE_ENV: production
       PORT: 3001
       HOST: 0.0.0.0
+      NODE_ENV: production
       NUXT_PUBLIC_API_BASE: /api
   - name: caddy
     image: registry.tourde.cloud/pacmani/caddy
