@@ -86,19 +86,19 @@
 
         <UForm :state="organizationForm" @submit="submitOrganizationRequest">
           <div class="space-y-4">
-            <UFormGroup label="Název organizace" name="name" required>
+            <UFormField label="Název organizace" name="name" required>
               <UInput v-model="organizationForm.name" placeholder="ZŠ Krásná Lípa" />
-            </UFormGroup>
+            </UFormField>
 
-            <UFormGroup label="Slug (URL identifikátor)" name="slug" required>
+            <UFormField label="Slug (URL identifikátor)" name="slug" required>
               <UInput v-model="organizationForm.slug" placeholder="zs-krasna-lipa" />
-            </UFormGroup>
+            </UFormField>
 
-            <UFormGroup label="Popis">
-              <UTextarea v-model="organizationForm.description" placeholder="Základní škola s rozšířenou výukou..." rows="3" />
-            </UFormGroup>
+            <UFormField label="Popis">
+              <UTextarea v-model="organizationForm.description" placeholder="Základní škola s rozšířenou výukou..." :rows="3" />
+            </UFormField>
 
-            <UFormGroup label="Typ školy">
+            <UFormField label="Typ školy">
               <USelect
                 v-model="organizationForm.schoolType"
                 :options="[
@@ -109,21 +109,21 @@
                   { label: 'Jiné', value: 'other' },
                 ]"
               />
-            </UFormGroup>
+            </UFormField>
 
             <div class="grid grid-cols-2 gap-4">
-              <UFormGroup label="Město">
+              <UFormField label="Město">
                 <UInput v-model="organizationForm.city" placeholder="Praha" />
-              </UFormGroup>
+              </UFormField>
 
-              <UFormGroup label="Stát">
+              <UFormField label="Stát">
                 <UInput v-model="organizationForm.country" placeholder="Česká republika" />
-              </UFormGroup>
+              </UFormField>
             </div>
           </div>
 
           <div class="flex gap-3 mt-6">
-            <UButton color="gray" variant="ghost" @click="step = 1" block>
+            <UButton color="neutral" variant="ghost" @click="step = 1" block>
               Zpět
             </UButton>
             <UButton type="submit" :loading="submitting" block>
@@ -183,9 +183,9 @@
                 Máte pozvánkový kód od lektora? Vložte ho níže pro okamžité připojení.
               </p>
 
-              <UFormGroup label="Pozvánkový kód">
+              <UFormField label="Pozvánkový kód">
                 <UInput v-model="inviteCode" placeholder="abc123def456..." />
-              </UFormGroup>
+              </UFormField>
 
               <UButton @click="joinViaInvite" :loading="submitting" block>
                 Připojit se pomocí kódu
@@ -194,7 +194,7 @@
           </template>
         </UTabs>
 
-        <UButton color="gray" variant="ghost" @click="step = 1" block>
+        <UButton color="neutral" variant="ghost" @click="step = 1" block>
           Zpět
         </UButton>
       </div>
@@ -214,7 +214,7 @@
           </p>
         </div>
 
-        <UButton @click="navigateTo('/login')" color="gray" variant="ghost">
+        <UButton @click="navigateTo('/login')" color="neutral" variant="ghost">
           Přejít na přihlášení
         </UButton>
       </div>

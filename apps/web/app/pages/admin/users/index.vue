@@ -91,13 +91,13 @@
           </template>
 
           <template #actions-data="{ row }: any">
-            <UDropdown :items="getActions(row)">
+            <UDropdownMenu :items="getActions(row)">
               <UButton
                 icon="i-heroicons-ellipsis-horizontal"
                 color="neutral"
                 variant="ghost"
               />
-            </UDropdown>
+            </UDropdownMenu>
           </template>
         </UTable>
 
@@ -121,15 +121,15 @@
         </template>
 
         <form @submit.prevent="saveUser" class="space-y-4">
-          <UFormGroup label="Jméno">
+          <UFormField label="Jméno">
             <UInput v-model="editForm.name" />
-          </UFormGroup>
+          </UFormField>
 
-          <UFormGroup label="Email">
+          <UFormField label="Email">
             <UInput v-model="editForm.email" type="email" />
-          </UFormGroup>
+          </UFormField>
 
-          <UFormGroup label="Globální role">
+          <UFormField label="Globální role">
             <USelectMenu
               v-model="editForm.globalRole"
               :options="[
@@ -138,11 +138,11 @@
               ]"
               value-attribute="value"
             />
-          </UFormGroup>
+          </UFormField>
 
-          <UFormGroup label="Nové heslo (volitelné)">
+          <UFormField label="Nové heslo (volitelné)">
             <UInput v-model="editForm.password" type="password" placeholder="Ponechte prázdné pro zachování" />
-          </UFormGroup>
+          </UFormField>
 
           <div class="flex justify-end gap-3 pt-4">
             <UButton type="button" color="neutral" variant="ghost" @click="showEditModal = false">
@@ -249,12 +249,12 @@ function getActions(user: AdminUser) {
     [{
       label: 'Upravit',
       icon: 'i-heroicons-pencil',
-      click: () => openEditModal(user)
+      onSelect: () => openEditModal(user)
     }],
     [{
       label: 'Smazat',
       icon: 'i-heroicons-trash',
-      click: () => deleteUserAction(user)
+      onSelect: () => deleteUserAction(user)
     }]
   ]
 }

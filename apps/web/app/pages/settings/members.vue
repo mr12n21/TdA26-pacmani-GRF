@@ -57,34 +57,34 @@
       <div class="px-6 pb-6">
         <UTable
           :rows="filteredMembers"
-          :columns="columns"
+          :columns="columns as any"
           :loading="loading"
         >
-          <template #user-data="{ row }">
+          <template #user-data="{ row }: any">
             <div>
               <p class="font-semibold">{{ row.user?.name ?? 'Neznámý' }}</p>
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ row.user?.email }}</p>
             </div>
           </template>
 
-          <template #role-data="{ row }">
-            <UBadge :color="getRoleColor(row.role)" :label="getRoleLabel(row.role)" />
+          <template #role-data="{ row }: any">
+            <UBadge :color="(getRoleColor(row.role)) as any" :label="getRoleLabel(row.role)" />
           </template>
 
-          <template #status-data="{ row }">
-            <UBadge :color="getStatusColor(row.status)" :label="getStatusLabel(row.status)" />
+          <template #status-data="{ row }: any">
+            <UBadge :color="(getStatusColor(row.status)) as any" :label="getStatusLabel(row.status)" />
           </template>
 
-          <template #joinedAt-data="{ row }">
+          <template #joinedAt-data="{ row }: any">
             <span class="text-sm text-gray-600 dark:text-gray-400">
               {{ formatDate(row.joinedAt) }}
             </span>
           </template>
 
-          <template #actions-data="{ row }">
-            <UDropdown :items="getActions(row)">
-              <UButton icon="i-heroicons-ellipsis-horizontal" color="gray" variant="ghost" />
-            </UDropdown>
+          <template #actions-data="{ row }: any">
+            <UDropdownMenu :items="getActions(row)">
+              <UButton icon="i-heroicons-ellipsis-horizontal" color="neutral" variant="ghost" />
+            </UDropdownMenu>
           </template>
         </UTable>
       </div>
@@ -104,7 +104,7 @@
 
           <div v-if="inviteLink" class="flex items-center gap-2">
             <UInput :model-value="inviteLink" readonly class="flex-1" />
-            <UButton icon="i-heroicons-clipboard" color="gray" @click="copyInviteLink" />
+            <UButton icon="i-heroicons-clipboard" color="neutral" @click="copyInviteLink" />
           </div>
 
           <div v-else class="flex justify-end">
@@ -231,12 +231,12 @@ function getActions(member: NamespaceMember) {
       {
         label: 'Schválit',
         icon: 'i-heroicons-check',
-        click: () => updateMemberStatus(member.id, 'APPROVED')
+        onSelect: () => updateMemberStatus(member.id, 'APPROVED')
       },
       {
         label: 'Zamítnout',
         icon: 'i-heroicons-x-mark',
-        click: () => updateMemberStatus(member.id, 'REJECTED')
+        onSelect: () => updateMemberStatus(member.id, 'REJECTED')
       }
     ])
   }
@@ -246,12 +246,12 @@ function getActions(member: NamespaceMember) {
       {
         label: 'Změnit roli na Lektora',
         icon: 'i-heroicons-academic-cap',
-        click: () => updateMemberRole(member.id, 'LECTURER')
+        onSelect: () => updateMemberRole(member.id, 'LECTURER')
       },
       {
         label: 'Změnit roli na Studenta',
         icon: 'i-heroicons-user',
-        click: () => updateMemberRole(member.id, 'STUDENT')
+        onSelect: () => updateMemberRole(member.id, 'STUDENT')
       }
     ])
   }
@@ -259,7 +259,7 @@ function getActions(member: NamespaceMember) {
   actions.push([{
     label: 'Odebrat',
     icon: 'i-heroicons-trash',
-    click: () => removeMember(member.id)
+    onSelect: () => removeMember(member.id)
   }])
 
   return actions
@@ -308,6 +308,6 @@ async function createInviteLink() {
 
 function copyInviteLink() {
   navigator.clipboard.writeText(inviteLink.value)
-  toast.add({ title: 'Odkaz zkopírován', color: 'green' })
+  toast.add({ title: 'Odkaz zkopírován', color: 'success' })
 }
 </script>

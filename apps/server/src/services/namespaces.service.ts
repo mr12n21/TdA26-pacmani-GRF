@@ -132,9 +132,27 @@ export async function updateNamespace(namespaceId: string, data: {
   description?: string;
   status?: NamespaceStatus;
 }) {
-  return prisma.namespace.update({
-    where: { id: namespaceId },
-    data,
+  return prisma.$transaction(async (tx) => {
+    const namespace = await tx.namespace.update({
+      where: { id: namespaceId },
+      data,
+    });
+
+    // When namespace is approved (ACTIVE), auto-approve all PENDING members
+    if (data.status === NamespaceStatus.ACTIVE) {
+      await tx.namespaceMember.updateMany({
+        where: {
+          namespaceId,
+          status: MemberStatus.PENDING,
+        },
+        data: {
+          status: MemberStatus.APPROVED,
+          approvedAt: new Date(),
+        },
+      });
+    }
+
+    return namespace;
   });
 }
 

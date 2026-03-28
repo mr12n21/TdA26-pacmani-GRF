@@ -78,43 +78,43 @@
       <div class="px-6 pb-6">
         <UTable
           :rows="filteredNamespaces"
-          :columns="columns"
+          :columns="columns as any"
           :loading="loading"
         >
-          <template #name-data="{ row }">
+          <template #name-data="{ row }: any">
             <div>
               <p class="font-semibold">{{ row.name }}</p>
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ row.slug }}</p>
             </div>
           </template>
 
-          <template #status-data="{ row }">
+          <template #status-data="{ row }: any">
             <UBadge
-              :color="getStatusColor(row.status)"
+              :color="(getStatusColor(row.status)) as any"
               :label="getStatusLabel(row.status)"
             />
           </template>
 
-          <template #members-data="{ row }">
+          <template #members-data="{ row }: any">
             <span class="text-gray-600 dark:text-gray-400">
               {{ row._count?.members ?? 0 }} členů
             </span>
           </template>
 
-          <template #createdAt-data="{ row }">
+          <template #createdAt-data="{ row }: any">
             <span class="text-sm text-gray-600 dark:text-gray-400">
               {{ formatDate(row.createdAt) }}
             </span>
           </template>
 
-          <template #actions-data="{ row }">
-            <UDropdown :items="getActions(row)">
+          <template #actions-data="{ row }: any">
+            <UDropdownMenu :items="getActions(row)">
               <UButton
                 icon="i-heroicons-ellipsis-horizontal"
-                color="gray"
+                color="neutral"
                 variant="ghost"
               />
-            </UDropdown>
+            </UDropdownMenu>
           </template>
         </UTable>
       </div>
@@ -128,25 +128,25 @@
         </template>
 
         <form @submit.prevent="createNamespace" class="space-y-4">
-          <UFormGroup label="Název organizace" required>
+          <UFormField label="Název organizace" required>
             <UInput v-model="form.name" placeholder="např. Gymnázium Brno" />
-          </UFormGroup>
+          </UFormField>
 
-          <UFormGroup label="Slug (URL identifikátor)" required>
+          <UFormField label="Slug (URL identifikátor)" required>
             <UInput v-model="form.slug" placeholder="např. gym-brno" />
             <template #hint>
               <span class="text-xs text-gray-500">Bude použito v URL</span>
             </template>
-          </UFormGroup>
+          </UFormField>
 
-          <UFormGroup label="Popis">
-            <UTextarea v-model="form.description" rows="3" placeholder="Nepovinný popis organizace" />
-          </UFormGroup>
+          <UFormField label="Popis">
+            <UTextarea v-model="form.description" :rows="3" placeholder="Nepovinný popis organizace" />
+          </UFormField>
 
           <div class="flex justify-end gap-3 pt-4">
             <UButton
               type="button"
-              color="gray"
+              color="neutral"
               variant="ghost"
               @click="showCreateModal = false"
             >
@@ -280,11 +280,11 @@ function formatDate(dateStr: string): string {
 }
 
 function getActions(namespace: Namespace) {
-  const actions = [
+  const actions: any[][] = [
     [{
       label: 'Detail',
       icon: 'i-heroicons-eye',
-      click: () => navigateTo(`/admin/namespaces/${namespace.id}`)
+      onSelect: () => navigateTo(`/admin/namespaces/${namespace.id}`)
     }]
   ]
 
@@ -293,17 +293,17 @@ function getActions(namespace: Namespace) {
     actions.push([{
       label: 'Schválit',
       icon: 'i-heroicons-check',
-      click: () => approveNamespace(namespace)
+      onSelect: () => approveNamespace(namespace)
     }, {
       label: 'Zamítnout',
       icon: 'i-heroicons-x-mark',
-      click: () => rejectNamespace(namespace)
+      onSelect: () => rejectNamespace(namespace)
     }])
   } else {
     actions.push([{
       label: namespace.status === 'ACTIVE' ? 'Pozastavit' : 'Aktivovat',
       icon: namespace.status === 'ACTIVE' ? 'i-heroicons-pause' : 'i-heroicons-play',
-      click: () => toggleStatus(namespace)
+      onSelect: () => toggleStatus(namespace)
     }])
   }
 
