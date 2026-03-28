@@ -142,7 +142,7 @@ onMounted(async () => {
 }
 
 .section-title {
-  font-size: 1.2rem;
+  font-size: 1.325rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
 }
@@ -179,7 +179,7 @@ onMounted(async () => {
 
 .action-card h3 {
   margin: 0 0 0.4rem;
-  font-size: 1.05rem;
+  font-size: 1.175rem;
 }
 
 .action-card p {
@@ -194,7 +194,7 @@ onMounted(async () => {
   border: 1px solid var(--ui-border);
   background: var(--ui-bg-muted);
   padding: 0.35rem 0.75rem;
-  font-size: 0.84rem;
+  font-size: 0.965rem;
   font-weight: 700;
 }
 
