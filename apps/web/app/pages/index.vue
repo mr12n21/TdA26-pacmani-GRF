@@ -43,96 +43,121 @@ const features = [
 
 <template>
   <div>
-    <!-- ═══ HERO ═══ -->
-    <section class="relative py-28 lg:py-36 overflow-hidden">
-      <!-- Gradient orbs -->
-      <div class="gradient-orb gradient-orb-blue w-[500px] h-[500px] -top-40 -left-32" />
-      <div class="gradient-orb gradient-orb-teal w-[400px] h-[400px] top-20 -right-20" />
-      <div class="gradient-orb gradient-orb-green w-[300px] h-[300px] -bottom-20 left-1/3" />
+    <section class="relative overflow-hidden pt-24 pb-20 lg:pt-28 lg:pb-32 hero-surface">
+      <div class="hero-grid-pattern text-slate-500 dark:text-white" />
+      
+      <div class="gradient-orb gradient-orb-blue w-[480px] h-[480px] top-0 -left-24 opacity-10 dark:opacity-20" />
+      <div class="gradient-orb gradient-orb-teal w-[360px] h-[360px] top-32 right-0 opacity-10 dark:opacity-20" />
 
       <UContainer class="relative">
-        <div class="max-w-3xl mx-auto text-center">
-          <div class="fade-in mb-8">
-            <img src="/brand/logos/logo-erb.svg" alt="TdA" class="w-16 h-16 mx-auto animate-gentle-float">
+        <div class="mx-auto grid gap-12 lg:grid-cols-[1.05fr_0.95fr] items-center">
+          <div class="max-w-2xl text-center lg:text-left">
+            <p class="inline-flex items-center justify-center rounded-full border border-blue-500/20 bg-blue-50 dark:bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-blue-700 dark:text-teal-300 lg:justify-start">
+              Interaktivní platforma do škol
+            </p>
+            <h1 class="mt-8 text-4xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">
+              Interaktivní platforma pro moderní výuku IT & kyberbezpečnosti
+            </h1>
+            <p class="mt-6 text-base leading-8 text-slate-600 dark:text-slate-200 sm:text-lg lg:text-xl">
+              Zlepšujeme výuku IT o praktická a teoretická cvičení díky přehlednému prostředí, ve kterém učitelé i studenti pracují bez zbytečné složitosti.
+            </p>
+            <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center justify-center lg:justify-start">
+              <UButton label="Výuka s TdA" to="/courses" icon="i-lucide-arrow-right" trailing color="primary" size="xl" class="btn-glow" />
+              <UButton label="Přihlášení do platformy" to="/login" color="neutral" variant="outline" size="xl" />
+            </div>
           </div>
 
-          <h1 class="text-4xl lg:text-5xl font-bold leading-tight mb-6 fade-in-d1">
-            Vzdělávání, <span class="text-accent">které vás baví</span>
-          </h1>
+          <div class="relative mx-auto w-full max-w-[28rem] lg:max-w-[32rem]">
+            <div class="hero-preview glass border-slate-200 dark:border-white/10 p-8 shadow-2xl">
+              <div class="flex items-center gap-4">
+                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 dark:bg-white/10 text-white">
+                  <img src="/brand/logos/logo-erb.svg" alt="TdA" class="h-8 w-8" />
+                </div>
+                <div>
+                  <p class="text-xs uppercase tracking-[0.28em] text-slate-500 dark:text-slate-400">Think different Academy</p>
+                  <h2 class="mt-2 text-xl font-semibold text-slate-900 dark:text-white">Jednoduchý start pro každou třídu</h2>
+                </div>
+              </div>
 
-          <p class="text-lg text-muted leading-relaxed mb-10 max-w-xl mx-auto fade-in-d2">
-            Interaktivní platforma pro živé kurzy s moduly, kvízy a komunikací v reálném čase.
-          </p>
-
-          <div class="flex flex-wrap justify-center gap-4 fade-in-d3">
-            <UButton
-              label="Prohlédnout kurzy"
-              to="/courses"
-              icon="i-lucide-arrow-right"
-              trailing
-              color="primary"
-              size="xl"
-              class="btn-glow"
-            />
-            <UButton
-              label="Jsem lektor"
-              to="/signup"
-              color="neutral"
-              variant="outline"
-              size="xl"
-            />
+              <div class="mt-8 grid gap-4">
+                <div class="rounded-2xl bg-slate-50 dark:bg-slate-950/40 p-4 border border-slate-100 dark:border-white/5">
+                  <p class="text-sm font-medium text-blue-600 dark:text-slate-300">Živé kurzy v reálném čase</p>
+                  <p class="mt-1 text-base font-semibold text-slate-900 dark:text-white">Sledujte postup studentů a otevřete novou lekci jedním kliknutím.</p>
+                </div>
+                </div>
+            </div>
           </div>
         </div>
       </UContainer>
     </section>
 
-    <!-- ─── divider ─── -->
-    <div class="gradient-divider mx-auto w-2/3" />
+    <section class="py-20 lg:py-28 text-white dark:bg-slate-950">
+      <UContainer>
+        <div class="grid gap-6 md:grid-cols-3">
+          <div class="stat-card">
+            <span class="stat-value">434+</span>
+            <p class="stat-label">praktických cvičení</p>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">134</span>
+            <p class="stat-label">škol z celé ČR</p>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">41 902+</span>
+            <p class="stat-label">studentů v moderní výuce</p>
+          </div>
+        </div>
+      </UContainer>
+    </section>
 
-    <!-- ═══ FEATURES ═══ -->
     <section class="py-24 section-gradient">
       <UContainer>
-        <div class="text-center mb-14 fade-in">
-          <h2 class="text-3xl font-bold mb-3">Vše pro moderní <span class="text-accent">vzdělávání</span></h2>
-          <p class="text-muted max-w-lg mx-auto">
-            Platforma navržená pro lektory i studenty s důrazem na interaktivitu
-          </p>
+        <div class="mx-auto max-w-3xl text-center mb-14">
+          <p class="text-xs uppercase tracking-[0.28em] text-accent">Jak se s Haxagonem učí</p>
+          <h2 class="mt-4 text-3xl font-bold">Vyberete téma, přiřadíte úlohu a sledujete výkon v reálném čase</h2>
+          <p class="mt-4 text-muted">Platforma je navržena tak, aby se studenti rychle zapojili a vyučující měli okamžitý přehled o výsledcích.</p>
         </div>
 
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          <div
-            v-for="(item, i) in features"
-            :key="i"
-            class="rounded-xl border border-default bg-elevated p-6 card-glow"
-            :class="`fade-in-d${Math.min(i + 1, 5)}`"
-          >
-            <div class="icon-badge w-10 h-10 mb-4">
-              <img :src="item.icon" alt="" class="w-5 h-5">
-            </div>
-            <h3 class="font-semibold mb-2">{{ item.title }}</h3>
-            <p class="text-sm text-muted leading-relaxed">{{ item.description }}</p>
+        <div class="grid gap-6 lg:grid-cols-3">
+          <div class="step-card">
+            <span class="step-number">1.</span>
+            <h3>Vytvoříte virtuální třídu</h3>
+            <p>Na pár kliknutí vytvoříte skupinu a pozvete do ní žáky pomocí jednoduchého importu.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-number">2.</span>
+            <h3>Vyberete si úlohu</h3>
+            <p>Vyberete z připravených témat a zadáte úlohu konkrétní skupině studentů.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-number">3.</span>
+            <h3>Sledujete práci v reálném čase</h3>
+            <p>Při plnění vidíte postup celé třídy i jednotlivých žáků a můžete rychle zasáhnout.</p>
           </div>
         </div>
       </UContainer>
     </section>
 
-    <!-- ─── divider ─── -->
-    <div class="gradient-divider mx-auto w-2/3" />
+    <section class="py-24">
+      <UContainer>
+        <div class="max-w-5xl mx-auto text-center">
+          <p class="text-xs uppercase tracking-[0.28em] text-accent mb-4">Platforma a obsah</p>
+          <h2 class="text-3xl font-bold mb-4">Všechny nástroje pro moderní výuku pod jednou střechou</h2>
+          <p class="text-muted max-w-3xl mx-auto">Kombinujeme správu kurzu, interaktivní moduly, testování a komunikaci. Haxagonový styl je o rychlosti, přehlednosti a praktičnosti.</p>
+        </div>
 
-    <!-- ═══ CTA ═══ -->
-    <section class="relative py-24 overflow-hidden">
-      <div class="gradient-orb gradient-orb-teal w-[400px] h-[400px] -bottom-32 -right-20" />
-      <div class="gradient-orb gradient-orb-blue w-[300px] h-[300px] -top-16 -left-16" />
-
-      <UContainer class="relative">
-        <div class="max-w-xl mx-auto text-center fade-in">
-          <h2 class="text-3xl font-bold mb-4">Připraveni <span class="text-accent">začít?</span></h2>
-          <p class="text-muted mb-10 leading-relaxed">
-            Vytvořte si účet a začněte sledovat živé kurzy nebo vytvářejte vlastní obsah.
-          </p>
-          <div class="flex flex-wrap justify-center gap-4">
-            <UButton label="Vytvořit účet" to="/signup" size="xl" color="primary" class="btn-glow" />
-            <UButton label="Procházet kurzy" to="/courses" size="xl" color="neutral" variant="outline" />
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="rounded-3xl border border-default bg-elevated p-6 card-glow">
+            <h3 class="font-semibold mb-2">Živé úkoly</h3>
+            <p class="text-sm text-muted leading-relaxed">Studijní úlohy, které studenty vedou krok za krokem a podporují praktické dovednosti.</p>
+          </div>
+          <div class="rounded-3xl border border-default bg-elevated p-6 card-glow">
+            <h3 class="font-semibold mb-2">Správa tříd</h3>
+            <p class="text-sm text-muted leading-relaxed">Seskupujte studenty, přiřazujte úlohy a spravujte průběh celé výuky z jednoho místa.</p>
+          </div>
+          <div class="rounded-3xl border border-default bg-elevated p-6 card-glow">
+            <h3 class="font-semibold mb-2">Vyhodnocení</h3>
+            <p class="text-sm text-muted leading-relaxed">Přehledné výsledky výkonu i podrobné statistiky o práci celé třídy i jednotlivců.</p>
           </div>
         </div>
       </UContainer>

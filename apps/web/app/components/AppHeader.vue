@@ -266,7 +266,7 @@ const navItems = computed(() => [
   gap: 0.25rem;
   padding: 0.5rem 0.875rem;
   border-radius: 0.5rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--ui-text-muted);
   transition: color 0.2s ease, background-color 0.2s ease;
