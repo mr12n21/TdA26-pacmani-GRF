@@ -1,6 +1,6 @@
 <template>
   <UDashboardPage>
-    <UDashboardPanel grow>
+    <UDashboardPanel grow class="min-h-[50vh]">
       <UDashboardNavbar title="Správa uživatelů" />
 
       <!-- Stats Cards -->
@@ -11,7 +11,7 @@
         </div>
         <div class="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-bg)] p-5">
           <p class="text-xs font-medium text-[var(--ui-text-muted)] uppercase tracking-wide">Super Admini</p>
-          <p class="text-3xl font-bold mt-1 text-purple-600">{{ superAdminCount }}</p>
+          <p class="text-3xl font-bold mt-1 text-blue-600">{{ superAdminCount }}</p>
         </div>
         <div class="rounded-xl border border-[var(--ui-border)] bg-[var(--ui-bg)] p-5">
           <p class="text-xs font-medium text-[var(--ui-text-muted)] uppercase tracking-wide">Běžní uživatelé</p>

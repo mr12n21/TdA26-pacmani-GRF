@@ -1,52 +1,35 @@
 <script setup lang="ts">
 const columns = [
   {
-    label: 'Navigace',
+    label: 'Informace',
     children: [
-      { label: 'Kurzy', to: '/courses' },
       { label: 'O nás', to: '/about' },
       { label: 'FAQ', to: '/faq' }
     ]
-  },
-  {
-    label: 'Pro lektory',
-    children: [
-      { label: 'Dashboard', to: '/dashboard' },
-      { label: 'Přihlášení', to: '/login' },
-      { label: 'Registrace', to: '/signup' }
-    ]
   }
+  // Sekci "Pro lektory" jsem odstranil, aby zbyla jen FAQ a O nás, jak jsi chtěl.
 ]
 </script>
 
 <template>
-  <div class="gradient-divider" />
+  <div class="h-px bg-slate-200 dark:bg-white/10" />
 
-  <UFooter :ui="{ top: 'border-b border-default' }" class="section-gradient">  
+  <UFooter :ui="{ top: 'border-b border-slate-200 dark:border-white/10' }">  
     <template #top>
       <UContainer>
-        <UFooterColumns :columns="columns">
-          <template #right>
-            <div class="flex items-center gap-3">
-              <img src="/brand/logos/logo-erb.svg" alt="TdA" class="h-12 w-12">
-              <div>
-                <p class="font-extrabold text-highlighted">
-                  Think different Academy
-                </p>
-                <p class="text-sm text-muted">Interaktivní vzdělávací platforma</p>
-              </div>
-            </div>
-
-
-          </template>
-        </UFooterColumns>
+        <UFooterColumns :columns="columns" />
       </UContainer>
     </template>
 
     <template #left>
-      <p class="text-muted text-sm">
+      <p class="text-slate-500 dark:text-slate-400 text-sm">
         © {{ new Date().getFullYear() }} Think different Academy
       </p>
+    </template>
+
+    <template #right>
+      <div class="flex gap-4">
+        </div>
     </template>
   </UFooter>
 </template>
