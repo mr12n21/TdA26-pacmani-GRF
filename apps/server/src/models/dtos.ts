@@ -84,3 +84,41 @@ export interface ParticipantJoinDTO {
 export interface ParticipantUpdateDTO {
   nickname: string;
 }
+
+// ─── Namespace DTOs ──────────────────────────────────────────────────
+
+export interface NamespaceCreateDTO {
+  name: string;
+  slug: string;
+  description?: string;
+}
+
+export interface NamespaceUpdateDTO {
+  name?: string;
+  slug?: string;
+  description?: string;
+  status?: 'PENDING' | 'ACTIVE' | 'SUSPENDED';
+}
+
+export interface MembershipRequestDTO {
+  role: 'ORG_ADMIN' | 'LECTURER' | 'STUDENT';
+}
+
+export interface MembershipStatusUpdateDTO {
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+}
+
+export interface MemberRoleUpdateDTO {
+  role: 'ORG_ADMIN' | 'LECTURER' | 'STUDENT';
+}
+
+export interface InviteLinkCreateDTO {
+  courseId: string;
+  type: 'ONE_TIME' | 'PERSISTENT';
+  expiresAt?: string;
+  maxUses?: number;
+}
+
+export interface JoinViaInviteDTO {
+  nickname?: string;
+}

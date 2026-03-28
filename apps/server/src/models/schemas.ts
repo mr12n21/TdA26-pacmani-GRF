@@ -107,3 +107,45 @@ export const participantJoinSchema = z.object({
 export const participantUpdateSchema = z.object({
   nickname: z.string().min(1).max(50),
 });
+
+// ─── Namespace Schemas ───────────────────────────────────────────────
+
+export const namespaceCreateSchema = z.object({
+  name: z.string().min(1, 'Namespace name is required'),
+  slug: z.string().min(1).regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
+  description: z.string().optional(),
+});
+
+export const namespaceUpdateSchema = z.object({
+  name: z.string().min(1).optional(),
+  slug: z.string().min(1).regex(/^[a-z0-9-]+$/).optional(),
+  description: z.string().optional(),
+  status: z.enum(['PENDING', 'ACTIVE', 'SUSPENDED']).optional(),
+});
+
+export const membershipRequestSchema = z.object({
+  role: z.enum(['ORG_ADMIN', 'LECTURER', 'STUDENT']),
+});
+
+export const membershipStatusUpdateSchema = z.object({
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional(),
+  role: z.enum(['ORG_ADMIN', 'LECTURER', 'STUDENT']).optional(),
+}).refine(data => data.status || data.role, {
+  message: 'At least one of status or role is required',
+});
+
+export const memberRoleUpdateSchema = z.object({
+  role: z.enum(['ORG_ADMIN', 'LECTURER', 'STUDENT']),
+});
+
+export const inviteLinkCreateSchema = z.object({
+  courseId: z.string().uuid().optional(),
+  type: z.enum(['ONE_TIME', 'PERSISTENT']),
+  expiresAt: z.string().datetime().optional(),
+  maxUses: z.number().int().positive().optional(),
+});
+
+export const joinViaInviteSchema = z.object({
+  nickname: z.string().min(1).max(50).optional(),
+});
+

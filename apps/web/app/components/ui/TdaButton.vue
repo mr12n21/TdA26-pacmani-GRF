@@ -144,9 +144,9 @@ function createRipple(e: MouseEvent) {
 }
 
 /* ── Sizes ── */
-.tda-btn--sm { padding: 0.375rem 0.875rem; font-size: 0.8125rem; border-radius: 0.375rem; }
-.tda-btn--md { padding: 0.625rem 1.375rem; font-size: 0.875rem; }
-.tda-btn--lg { padding: 0.875rem 2rem; font-size: 1rem; border-radius: 0.625rem; }
+.tda-btn--sm { padding: 0.375rem 0.875rem; font-size: 0.9375rem; border-radius: 0.375rem; }
+.tda-btn--md { padding: 0.625rem 1.375rem; font-size: 1rem; }
+.tda-btn--lg { padding: 0.875rem 2rem; font-size: 1.125rem; border-radius: 0.625rem; }
 
 .tda-btn--block { width: 100%; }
 

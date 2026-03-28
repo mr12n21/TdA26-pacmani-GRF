@@ -402,6 +402,12 @@ const QUESTION_TYPES = [
 const course = computed(() => courseStore.currentCourse)
 const stateMeta = computed(() => course.value?.state ? STATE_META[course.value.state] : null)
 const editable = computed(() => courseStore.isEditable)
+const scheduledStartText = computed(() => {
+  if (!course.value?.scheduledStart) return '—'
+  return new Date(course.value.scheduledStart).toLocaleString('cs-CZ')
+})
+
+const topQuizRows = computed(() => quizPerformanceRows.value.slice(0, 5))
 </script>
 
 <template>
@@ -668,30 +674,92 @@ const editable = computed(() => courseStore.isEditable)
 
           <!-- ─── SIDEBAR (1/3) ───────────────────────────── -->
           <div class="space-y-6">
-            <UPageCard title="Stav kurzu">
+            <UPageCard title="Akce kurzu">
               <template #description>
                 <div class="space-y-3 mt-2">
                   <template v-if="courseStore.isDraft">
                     <UFormField label="Datum zahájení">
                       <UInput v-model="scheduleDate" type="datetime-local" class="w-full" />
                     </UFormField>
-                    <UButton label="Naplánovat" icon="i-lucide-calendar" color="primary" block :loading="transitioning" @click="schedule" />
+                    <div class="grid grid-cols-1 gap-2">
+                      <UButton label="Naplánovat" icon="i-lucide-calendar" color="primary" block :loading="transitioning" @click="schedule" />
+                      <UButton label="Spustit nyní" icon="i-lucide-play" color="neutral" variant="outline" block :loading="transitioning" @click="doTransition('start')" />
+                      <UButton label="Duplikovat" icon="i-lucide-copy" color="neutral" variant="outline" block :loading="transitioning" @click="doTransition('duplicate')" />
+                    </div>
                   </template>
+
                   <template v-if="courseStore.isScheduled">
-                    <p class="text-sm text-muted">Naplánováno na: {{ course.scheduledStart ? new Date(course.scheduledStart).toLocaleString('cs-CZ') : '—' }}</p>
-                    <UButton label="Spustit nyní" icon="i-lucide-play" color="primary" block :loading="transitioning" @click="doTransition('start')" />
-                    <UButton label="Vrátit do konceptu" icon="i-lucide-undo" color="neutral" variant="outline" block :loading="transitioning" @click="doTransition('revert-to-draft')" />
+                    <p class="text-sm text-muted">Naplánováno na: {{ scheduledStartText }}</p>
+                    <div class="grid grid-cols-1 gap-2">
+                      <UButton label="Spustit nyní" icon="i-lucide-play" color="primary" block :loading="transitioning" @click="doTransition('start')" />
+                      <UButton label="Vrátit do konceptu" icon="i-lucide-undo" color="neutral" variant="outline" block :loading="transitioning" @click="doTransition('revert-to-draft')" />
+                      <UButton label="Duplikovat" icon="i-lucide-copy" color="neutral" variant="outline" block :loading="transitioning" @click="doTransition('duplicate')" />
+                    </div>
                   </template>
+
                   <template v-if="courseStore.isLive">
-                    <UButton label="Pozastavit" icon="i-lucide-pause" color="warning" block :loading="transitioning" @click="doTransition('pause')" />
-                    <UButton label="Archivovat" icon="i-lucide-archive" color="neutral" variant="outline" block :loading="transitioning" @click="doTransition('archive')" />
+                    <div class="grid grid-cols-1 gap-2">
+                      <UButton label="Pozastavit" icon="i-lucide-pause" color="warning" block :loading="transitioning" @click="doTransition('pause')" />
+                      <UButton label="Archivovat" icon="i-lucide-archive" color="neutral" variant="outline" block :loading="transitioning" @click="doTransition('archive')" />
+                    </div>
                   </template>
+
                   <template v-if="courseStore.isPaused">
-                    <UButton label="Pokračovat" icon="i-lucide-play" color="primary" block :loading="transitioning" @click="doTransition('resume')" />
-                    <UButton label="Archivovat" icon="i-lucide-archive" color="neutral" variant="outline" block :loading="transitioning" @click="doTransition('archive')" />
+                    <div class="grid grid-cols-1 gap-2">
+                      <UButton label="Pokračovat" icon="i-lucide-play" color="primary" block :loading="transitioning" @click="doTransition('resume')" />
+                      <UButton label="Archivovat" icon="i-lucide-archive" color="neutral" variant="outline" block :loading="transitioning" @click="doTransition('archive')" />
+                    </div>
                   </template>
+
                   <template v-if="courseStore.isArchived">
                     <UButton label="Duplikovat kurz" icon="i-lucide-copy" color="primary" block :loading="transitioning" @click="doTransition('duplicate')" />
+                  </template>
+                </div>
+              </template>
+            </UPageCard>
+
+            <UPageCard title="Statistiky kurzu">
+              <template #description>
+                <div class="space-y-3 mt-2">
+                  <p v-if="!canShowStats" class="text-sm text-muted">
+                    Statistiky se zobrazí po spuštění kurzu (LIVE/PAUSED/ARCHIVED).
+                  </p>
+                  <p v-else-if="statsLoading" class="text-sm text-muted">Načítám statistiky…</p>
+                  <p v-else-if="statsError" class="text-sm text-error">{{ statsError }}</p>
+                  <template v-else>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                      <div class="rounded-md border border-default px-2 py-1.5">
+                        <p class="text-xs text-muted">Účastníci</p>
+                        <p class="font-semibold">{{ quizDashboard?.summary?.totalParticipants ?? 0 }}</p>
+                      </div>
+                      <div class="rounded-md border border-default px-2 py-1.5">
+                        <p class="text-xs text-muted">Pokusy</p>
+                        <p class="font-semibold">{{ quizDashboard?.summary?.totalAttempts ?? 0 }}</p>
+                      </div>
+                      <div class="rounded-md border border-default px-2 py-1.5">
+                        <p class="text-xs text-muted">Průměr</p>
+                        <p class="font-semibold">{{ quizDashboard?.summary?.averageScore ?? 0 }} %</p>
+                      </div>
+                      <div class="rounded-md border border-default px-2 py-1.5">
+                        <p class="text-xs text-muted">Úspěšnost</p>
+                        <p class="font-semibold">{{ quizDashboard?.summary?.passRate ?? 0 }} %</p>
+                      </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                      <p class="text-xs font-semibold text-muted uppercase tracking-wide">Top kvízy</p>
+                      <div
+                        v-for="quiz in topQuizRows"
+                        :key="quiz.quizId"
+                        class="rounded-md border border-default px-2 py-1.5"
+                      >
+                        <p class="text-sm font-medium truncate">{{ quiz.quizTitle }}</p>
+                        <p class="text-xs text-muted">
+                          Skóre {{ quiz.averageScore }} % • Úspěšnost {{ quiz.passRate }} % • Pokusy {{ quiz.attempts }}
+                        </p>
+                      </div>
+                      <p v-if="!topQuizRows.length" class="text-xs text-muted">Zatím nejsou data ke kvízům.</p>
+                    </div>
                   </template>
                 </div>
               </template>

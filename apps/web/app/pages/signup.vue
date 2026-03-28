@@ -49,7 +49,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
   try {
     await userStore.register(payload.data.name, payload.data.email, payload.data.password)
     toast.add({ title: 'Účet vytvořen', description: 'Vítejte v Think different Academy!', color: 'success' })
-    navigateTo('/dashboard')
+    navigateTo('/auth/onboarding')
   } catch (err: any) {
     toast.add({
       title: 'Chyba registrace',

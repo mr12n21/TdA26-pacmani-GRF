@@ -87,9 +87,9 @@ export const getUpdatesSince = async (courseId: string, since: Date) => {
 /**
  * Schedule: DRAFT | PAUSED → SCHEDULED
  */
-export const scheduleCourse = async (courseId: string, userId: string, startTime: string) => {
+export const scheduleCourse = async (courseId: string, userId: string, startTime: string, globalRole?: string) => {
   const course = await getCourseOrThrow(courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   validateAction('schedule', course.state);
 
   // Validate course readiness
@@ -106,9 +106,9 @@ export const scheduleCourse = async (courseId: string, userId: string, startTime
 /**
  * Reschedule: SCHEDULED → SCHEDULED (update start time)
  */
-export const rescheduleCourse = async (courseId: string, userId: string, startTime: string) => {
+export const rescheduleCourse = async (courseId: string, userId: string, startTime: string, globalRole?: string) => {
   const course = await getCourseOrThrow(courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   validateAction('reschedule', course.state);
 
   const updated = await prisma.course.update({
@@ -122,9 +122,9 @@ export const rescheduleCourse = async (courseId: string, userId: string, startTi
 /**
  * Revert / Cancel: SCHEDULED → DRAFT
  */
-export const revertToDraft = async (courseId: string, userId: string) => {
+export const revertToDraft = async (courseId: string, userId: string, globalRole?: string) => {
   const course = await getCourseOrThrow(courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   validateAction('revertToDraft', course.state);
 
   const updated = await prisma.course.update({
@@ -138,9 +138,9 @@ export const revertToDraft = async (courseId: string, userId: string) => {
 /**
  * Start (manual): DRAFT | SCHEDULED → LIVE
  */
-export const startCourse = async (courseId: string, userId: string) => {
+export const startCourse = async (courseId: string, userId: string, globalRole?: string) => {
   const course = await getCourseOrThrow(courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   validateAction('start', course.state);
 
   // Validate course readiness
@@ -172,9 +172,9 @@ export const autoStartCourse = async (courseId: string) => {
 /**
  * Pause: LIVE → PAUSED
  */
-export const pauseCourse = async (courseId: string, userId: string) => {
+export const pauseCourse = async (courseId: string, userId: string, globalRole?: string) => {
   const course = await getCourseOrThrow(courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   validateAction('pause', course.state);
 
   const updated = await prisma.course.update({
@@ -188,9 +188,9 @@ export const pauseCourse = async (courseId: string, userId: string) => {
 /**
  * Resume: PAUSED → LIVE
  */
-export const resumeCourse = async (courseId: string, userId: string) => {
+export const resumeCourse = async (courseId: string, userId: string, globalRole?: string) => {
   const course = await getCourseOrThrow(courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   validateAction('resume', course.state);
 
   const updated = await prisma.course.update({
@@ -204,9 +204,9 @@ export const resumeCourse = async (courseId: string, userId: string) => {
 /**
  * Archive: LIVE | PAUSED → ARCHIVED
  */
-export const archiveCourse = async (courseId: string, userId: string) => {
+export const archiveCourse = async (courseId: string, userId: string, globalRole?: string) => {
   const course = await getCourseOrThrow(courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   validateAction('archive', course.state);
 
   const updated = await prisma.course.update({
@@ -224,7 +224,7 @@ export const archiveCourse = async (courseId: string, userId: string) => {
  * material interactions).
  * Does NOT copy feed posts.
  */
-export const duplicateCourse = async (courseId: string, userId: string) => {
+export const duplicateCourse = async (courseId: string, userId: string, globalRole?: string) => {
   const source = await prisma.course.findUnique({
     where: { id: courseId },
     include: {
@@ -238,7 +238,7 @@ export const duplicateCourse = async (courseId: string, userId: string) => {
     },
   });
   if (!source) throw new StateTransitionError('Course not found.', 404);
-  assertOwnership(userId, source.ownerId);
+  assertOwnership(userId, source.ownerId, globalRole);
 
   const newId = uuidv4();
   const duplicate = await prisma.$transaction(async (tx) => {
@@ -251,6 +251,7 @@ export const duplicateCourse = async (courseId: string, userId: string) => {
         state: CourseState.DRAFT,
         isDuplicate: true,
         ownerId: source.ownerId,
+        namespaceId: source.namespaceId,
       },
     });
 
@@ -334,9 +335,9 @@ export const duplicateCourse = async (courseId: string, userId: string) => {
  * This pre-deletes quiz results linked through participants to avoid
  * FK ordering issues on some PostgreSQL setups.
  */
-export const deleteCourse = async (courseId: string, userId: string) => {
+export const deleteCourse = async (courseId: string, userId: string, globalRole?: string) => {
   const course = await getCourseOrThrow(courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
 
   await prisma.$transaction(async (tx) => {
     await tx.quizResult.deleteMany({

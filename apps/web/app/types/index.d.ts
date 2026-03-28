@@ -1,8 +1,12 @@
 export interface User {
   id: string
-  role: 'STUDENT' | 'LECTURER' | 'ADMIN'
+  role: 'STUDENT' | 'LECTURER' | 'ADMIN' // @deprecated - use globalRole and namespaceRole
   name: string
   email: string
+  globalRole: 'SUPER_ADMIN' | 'USER'
+  activeNamespaceId?: string
+  namespaceRole?: 'ORG_ADMIN' | 'LECTURER' | 'STUDENT'
+  namespaces?: NamespaceMembership[]
 }
 
 export type CourseState = 'DRAFT' | 'SCHEDULED' | 'LIVE' | 'PAUSED' | 'ARCHIVED'
@@ -93,4 +97,48 @@ export interface Participant {
   nickname?: string
   userId?: string
   joinedAt: string
+}
+
+// ─── Namespace Types ─────────────────────────────────────────────────
+
+export interface Namespace {
+  id: string
+  name: string
+  slug: string
+  description?: string
+  status: 'PENDING' | 'ACTIVE' | 'SUSPENDED'
+  createdAt: string
+  updatedAt: string
+  _count?: {
+    members?: number
+  }
+}
+
+export interface NamespaceMember {
+  id: string
+  userId: string
+  namespaceId: string
+  role: 'ORG_ADMIN' | 'LECTURER' | 'STUDENT'
+  status: 'PENDING' | 'APPROVED' | 'REJECTED'
+  joinedAt: string
+  approvedAt?: string
+  user?: User
+}
+
+export interface InviteLink {
+  id: string
+  courseId: string
+  namespaceId: string
+  token: string
+  type: 'ONE_TIME' | 'PERSISTENT'
+  expiresAt?: string
+  usedCount: number
+  maxUses?: number
+  createdById: string
+  createdAt: string
+}
+
+export interface NamespaceMembership {
+  namespace: Namespace
+  role: 'ORG_ADMIN' | 'LECTURER' | 'STUDENT'
 }

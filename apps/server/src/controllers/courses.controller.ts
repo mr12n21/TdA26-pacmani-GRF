@@ -33,6 +33,10 @@ export const createCourse = async (req: Request, res: Response) => {
   if (!resolvedTitle) return res.status(400).json({ message: 'Title required' });
 
   const ownerId = req.user?.id ?? await getDefaultLecturerId();
+  
+  // Get namespaceId from request context
+  const namespaceId = req.namespace?.id || req.user?.activeNamespaceId;
+  if (!namespaceId) return res.status(400).json({ message: 'Namespace context required' });
 
   const course = await prisma.course.create({
     data: {
@@ -41,6 +45,7 @@ export const createCourse = async (req: Request, res: Response) => {
       description,
       state: CourseState.DRAFT,
       ownerId,
+      namespaceId,
     },
   });
 
@@ -118,7 +123,7 @@ export const updateCourse = async (req: Request, res: Response) => {
     if (!existing) return res.status(404).json({ message: 'Course not found' });
 
     assertDraftState(existing.state);
-    if (req.user) assertOwnership(req.user.id, existing.ownerId);
+    if (req.user) assertOwnership(req.user.id, existing.ownerId, req.user.globalRole);
 
     const newTitle = (title ?? name ?? existing.title)?.trim();
     const course = await prisma.course.update({
@@ -144,7 +149,7 @@ export const updateCourse = async (req: Request, res: Response) => {
 export const deleteCourse = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
-    await coursesService.deleteCourse(courseId, req.user!.id);
+    await coursesService.deleteCourse(courseId, req.user!.id, req.user!.globalRole);
     sendStatsEvent('statistics_updated', {
       courseId,
       source: 'course_deleted',
@@ -167,7 +172,7 @@ export const likeCourse = async (req: Request, res: Response) => {
   const course = await prisma.course.findUnique({ where: { id: courseId } });
   if (!course) return res.status(404).json({ message: 'Course not found' });
   try {
-    await prisma.like.create({ data: { userId, courseId } });
+    await prisma.like.create({ data: { userId, courseId, namespaceId: course.namespaceId } });
   } catch (e) { /* unique constraint -> already liked */ }
   const likesCount = await prisma.like.count({ where: { courseId } });
   res.json({ liked: true, likesCount });
@@ -189,7 +194,7 @@ export const scheduleCourseHandler = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
     const { startTime } = req.body;
-    const result = await coursesService.scheduleCourse(courseId, req.user!.id, startTime);
+    const result = await coursesService.scheduleCourse(courseId, req.user!.id, startTime, req.user!.globalRole);
     res.json({ success: true, state: result.state, scheduledStart: result.scheduledStart });
   } catch (err) {
     handleControllerError(res, err);
@@ -200,7 +205,7 @@ export const rescheduleCourseHandler = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
     const { startTime } = req.body;
-    const result = await coursesService.rescheduleCourse(courseId, req.user!.id, startTime);
+    const result = await coursesService.rescheduleCourse(courseId, req.user!.id, startTime, req.user!.globalRole);
     res.json({ success: true, state: result.state, scheduledStart: result.scheduledStart });
   } catch (err) {
     handleControllerError(res, err);
@@ -210,7 +215,7 @@ export const rescheduleCourseHandler = async (req: Request, res: Response) => {
 export const revertToDraftHandler = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
-    const result = await coursesService.revertToDraft(courseId, req.user!.id);
+    const result = await coursesService.revertToDraft(courseId, req.user!.id, req.user!.globalRole);
     res.json({ success: true, state: result.state });
   } catch (err) {
     handleControllerError(res, err);
@@ -220,7 +225,7 @@ export const revertToDraftHandler = async (req: Request, res: Response) => {
 export const startCourseHandler = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
-    const result = await coursesService.startCourse(courseId, req.user!.id);
+    const result = await coursesService.startCourse(courseId, req.user!.id, req.user!.globalRole);
     res.json({ success: true, state: result.state });
   } catch (err) {
     handleControllerError(res, err);
@@ -230,7 +235,7 @@ export const startCourseHandler = async (req: Request, res: Response) => {
 export const pauseCourseHandler = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
-    const result = await coursesService.pauseCourse(courseId, req.user!.id);
+    const result = await coursesService.pauseCourse(courseId, req.user!.id, req.user!.globalRole);
     res.json({ success: true, state: result.state });
   } catch (err) {
     handleControllerError(res, err);
@@ -240,7 +245,7 @@ export const pauseCourseHandler = async (req: Request, res: Response) => {
 export const resumeCourseHandler = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
-    const result = await coursesService.resumeCourse(courseId, req.user!.id);
+    const result = await coursesService.resumeCourse(courseId, req.user!.id, req.user!.globalRole);
     res.json({ success: true, state: result.state });
   } catch (err) {
     handleControllerError(res, err);
@@ -250,7 +255,7 @@ export const resumeCourseHandler = async (req: Request, res: Response) => {
 export const archiveCourseHandler = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
-    const result = await coursesService.archiveCourse(courseId, req.user!.id);
+    const result = await coursesService.archiveCourse(courseId, req.user!.id, req.user!.globalRole);
     res.json({ success: true, state: result.state });
   } catch (err) {
     handleControllerError(res, err);
@@ -260,7 +265,7 @@ export const archiveCourseHandler = async (req: Request, res: Response) => {
 export const duplicateCourseHandler = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
-    const result = await coursesService.duplicateCourse(courseId, req.user!.id);
+    const result = await coursesService.duplicateCourse(courseId, req.user!.id, req.user!.globalRole);
     sendStatsEvent('statistics_updated', {
       courseId: result.id,
       source: 'course_duplicated',

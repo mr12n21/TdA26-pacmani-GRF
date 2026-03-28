@@ -28,8 +28,6 @@ const closeMega = () => { megaTimeout = setTimeout(() => { megaOpen.value = fals
 
 const navItems = computed(() => [
   { label: 'Kurzy', to: '/courses', active: route.path.startsWith('/courses'), mega: true },
-  { label: 'O nás', to: '/about' },
-  { label: 'FAQ', to: '/faq' }
 ])
 </script>
 
@@ -128,10 +126,6 @@ const navItems = computed(() => [
                   >
                     <div class="mega-icon bg-blue-500/10 text-blue-500 dark:bg-blue-400/10 dark:text-blue-400">
                       <UIcon name="i-lucide-info" class="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p class="font-semibold text-sm text-highlighted">O platformě</p>
-                      <p class="text-xs text-muted">Jak to funguje</p>
                     </div>
                   </NuxtLink>
                 </div>
@@ -266,7 +260,7 @@ const navItems = computed(() => [
   gap: 0.25rem;
   padding: 0.5rem 0.875rem;
   border-radius: 0.5rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--ui-text-muted);
   transition: color 0.2s ease, background-color 0.2s ease;

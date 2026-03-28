@@ -7,6 +7,7 @@ const router = Router();
 router.post('/login', authCtrl.login);
 router.post('/register', authCtrl.register);
 router.post('/refresh', authCtrl.refresh);
+router.post('/switch-namespace', authMiddleware, authCtrl.switchNamespace);
 router.get('/me', authMiddleware, authCtrl.me);
 
 export default router;

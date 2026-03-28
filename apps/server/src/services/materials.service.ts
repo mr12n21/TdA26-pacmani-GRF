@@ -53,10 +53,11 @@ export const createMaterial = async (
     fileSize?: number;
     fileKey?: string;
   },
+  globalRole?: string,
 ) => {
   const mod = await getModuleOrThrow(moduleId);
   const course = await getCourseOrThrow(mod.courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   assertDraftState(course.state);
 
   // Determine order: find max order + 1
@@ -108,11 +109,12 @@ export const updateMaterial = async (
     fileMime?: string;
     fileSize?: number;
   },
+  globalRole?: string,
 ) => {
   const material = await getMaterialOrThrow(materialId);
   const mod = await getModuleOrThrow(material.moduleId);
   const course = await getCourseOrThrow(mod.courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   assertDraftState(course.state);
 
   // If replacing a file, remove old one
@@ -144,11 +146,11 @@ export const updateMaterial = async (
   return updated;
 };
 
-export const deleteMaterial = async (materialId: string, userId: string) => {
+export const deleteMaterial = async (materialId: string, userId: string, globalRole?: string) => {
   const material = await getMaterialOrThrow(materialId);
   const mod = await getModuleOrThrow(material.moduleId);
   const course = await getCourseOrThrow(mod.courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   assertDraftState(course.state);
 
   if (material.filePath) {
@@ -171,12 +173,13 @@ export const reorderMaterial = async (
   materialId: string,
   moduleId: string,
   newOrder: number,
-  userId: string
+  userId: string,
+  globalRole?: string,
 ) => {
   const material = await getMaterialOrThrow(materialId);
   const mod = await getModuleOrThrow(moduleId);
   const course = await getCourseOrThrow(mod.courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   assertDraftState(course.state);
 
   if (material.moduleId !== moduleId) {
@@ -245,6 +248,7 @@ export const reassignCourseMaterialToModule = async (
   materialId: string,
   targetModuleId: string,
   userId: string,
+  globalRole?: string,
 ) => {
   const material = await getMaterialOrThrow(materialId);
   const currentModule = await getModuleOrThrow(material.moduleId);
@@ -255,7 +259,7 @@ export const reassignCourseMaterialToModule = async (
   }
 
   const course = await getCourseOrThrow(courseId);
-  assertOwnership(userId, course.ownerId);
+  assertOwnership(userId, course.ownerId, globalRole);
   assertDraftState(course.state);
 
   if (material.moduleId === targetModuleId) {
