@@ -94,6 +94,35 @@ router.delete(
   namespacesCtrl.removeMemberHandler
 );
 
+// ─── Direct Member Add (admin adds user directly) ───────────────────
+
+router.post(
+  '/namespaces/:namespaceId/members/add',
+  authMiddleware,
+  namespaceMiddleware,
+  rolesMiddleware(['SUPER_ADMIN', 'ORG_ADMIN']),
+  namespacesCtrl.addMemberDirectlyHandler
+);
+
+// ─── Search users to add to namespace ────────────────────────────────
+
+router.get(
+  '/namespaces/:namespaceId/members/search',
+  authMiddleware,
+  namespaceMiddleware,
+  rolesMiddleware(['SUPER_ADMIN', 'ORG_ADMIN']),
+  namespacesCtrl.searchUsersForNamespaceHandler
+);
+
+// ─── Namespace Quizzes (all quizzes across courses in namespace) ─────
+
+router.get(
+  '/namespaces/:namespaceId/quizzes',
+  authMiddleware,
+  namespaceMiddleware,
+  namespacesCtrl.listNamespaceQuizzesHandler
+);
+
 // ─── Invite Links ────────────────────────────────────────────────────
 
 router.post(

@@ -4,6 +4,13 @@
       <UDashboardNavbar title="Členové organizace">
         <template #right>
           <UButton
+            icon="i-heroicons-user-plus"
+            label="Přidat člena"
+            color="primary"
+            @click="showAddMemberModal = true"
+            class="mr-2"
+          />
+          <UButton
             icon="i-heroicons-link"
             label="Pozvánkový odkaz"
             color="primary"
@@ -149,6 +156,73 @@
         </UCard>
       </template>
     </UModal>
+
+    <!-- Add Member Modal -->
+    <UModal v-model:open="showAddMemberModal">
+      <template #content>
+        <UCard>
+          <template #header>
+            <h2 class="text-xl font-bold">Přidat člena</h2>
+          </template>
+
+          <div class="space-y-4">
+            <UFormField label="Vyhledat uživatele">
+              <UInput
+                v-model="addUserSearchQuery"
+                placeholder="Jméno nebo email..."
+                icon="i-heroicons-magnifying-glass"
+                @input="debouncedSearchUsers"
+              />
+            </UFormField>
+
+            <div v-if="searchingUsers" class="flex justify-center py-4">
+              <UIcon name="i-lucide-loader-2" class="animate-spin text-xl text-muted" />
+            </div>
+
+            <div v-else-if="userSearchResults.length > 0" class="max-h-60 overflow-y-auto space-y-2">
+              <div
+                v-for="u in userSearchResults"
+                :key="u.id"
+                class="flex items-center justify-between p-3 rounded-lg border border-[var(--ui-border)] hover:bg-[var(--ui-bg-elevated)] cursor-pointer transition-colors"
+                :class="{ 'ring-2 ring-[var(--ui-primary)]': selectedUserId === u.id }"
+                @click="selectedUserId = u.id"
+              >
+                <div>
+                  <p class="font-semibold">{{ u.name }}</p>
+                  <p class="text-sm text-[var(--ui-text-muted)]">{{ u.email }}</p>
+                </div>
+                <UIcon v-if="selectedUserId === u.id" name="i-heroicons-check-circle" class="text-[var(--ui-primary)] w-5 h-5" />
+              </div>
+            </div>
+
+            <div v-else-if="addUserSearchQuery.length >= 2" class="text-sm text-[var(--ui-text-muted)] text-center py-4">
+              Žádní uživatelé nenalezeni
+            </div>
+
+            <UFormField label="Role">
+              <USelectMenu
+                v-model="addMemberRole"
+                :options="addMemberRoleOptions"
+                value-attribute="value"
+              />
+            </UFormField>
+
+            <div class="flex justify-end gap-3 pt-2">
+              <UButton color="neutral" variant="ghost" @click="showAddMemberModal = false">
+                Zrušit
+              </UButton>
+              <UButton
+                :disabled="!selectedUserId"
+                :loading="addingMember"
+                @click="addMemberDirectly"
+              >
+                Přidat
+              </UButton>
+            </div>
+          </div>
+        </UCard>
+      </template>
+    </UModal>
   </UDashboardPage>
 </template>
 
@@ -173,6 +247,21 @@ const statusFilter = ref('ALL')
 const showInviteModal = ref(false)
 const creatingInvite = ref(false)
 const inviteLink = ref('')
+
+// Add member state
+const showAddMemberModal = ref(false)
+const addUserSearchQuery = ref('')
+const userSearchResults = ref<any[]>([])
+const searchingUsers = ref(false)
+const selectedUserId = ref('')
+const addMemberRole = ref('LECTURER')
+const addingMember = ref(false)
+
+const addMemberRoleOptions = [
+  { label: 'Správce', value: 'ORG_ADMIN' },
+  { label: 'Lektor', value: 'LECTURER' },
+  { label: 'Student', value: 'STUDENT' }
+]
 
 const columns: TableColumn<NamespaceMember>[] = [
   { accessorKey: 'user', header: 'Uživatel' },
@@ -303,6 +392,51 @@ async function removeMember(memberId: string) {
   } catch (err) {
     console.error('Failed to remove member:', err)
     toast.add({ title: 'Chyba', color: 'error' })
+  }
+}
+
+// ── Add member directly ──────────────────────────────────────────────
+
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+function debouncedSearchUsers() {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => searchUsersForAdd(), 300)
+}
+
+async function searchUsersForAdd() {
+  if (addUserSearchQuery.value.length < 2) {
+    userSearchResults.value = []
+    return
+  }
+  searchingUsers.value = true
+  try {
+    userSearchResults.value = await get(`/namespaces/${nsId.value}/members/search?q=${encodeURIComponent(addUserSearchQuery.value)}`)
+  } catch (err) {
+    console.error('Failed to search users:', err)
+  } finally {
+    searchingUsers.value = false
+  }
+}
+
+async function addMemberDirectly() {
+  if (!selectedUserId.value) return
+  addingMember.value = true
+  try {
+    await post(`/namespaces/${nsId.value}/members/add`, {
+      userId: selectedUserId.value,
+      role: addMemberRole.value,
+    })
+    toast.add({ title: 'Člen úspěšně přidán', color: 'success' })
+    showAddMemberModal.value = false
+    selectedUserId.value = ''
+    addUserSearchQuery.value = ''
+    userSearchResults.value = []
+    await loadMembers()
+  } catch (err: any) {
+    console.error('Failed to add member:', err)
+    toast.add({ title: err?.data?.error || 'Chyba při přidávání člena', color: 'error' })
+  } finally {
+    addingMember.value = false
   }
 }
 

@@ -58,6 +58,7 @@ export interface Quiz {
   moduleId: string
   title: string
   description?: string
+  isVisible: boolean
   timesTaken: number
   questions?: Question[]
   createdAt: string

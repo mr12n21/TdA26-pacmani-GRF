@@ -392,6 +392,18 @@ async function deleteQuiz(moduleId: string, quizId: string) {
   }
 }
 
+async function toggleQuizVisibility(moduleId: string, quiz: Quiz) {
+  try {
+    await put(`/courses/${courseId}/modules/${moduleId}/quizzes/${quiz.id}`, {
+      isVisible: !quiz.isVisible,
+    })
+    await reloadModules()
+    toast.add({ title: quiz.isVisible ? 'Kvíz skryt' : 'Kvíz zobrazen', color: 'success' })
+  } catch (err: any) {
+    toast.add({ title: 'Chyba', description: err?.data?.message || 'Nepodařilo se změnit viditelnost', color: 'error' })
+  }
+}
+
 const QUESTION_TYPES = [
   { value: 'SINGLE_CHOICE', label: 'Jedna odpověď' },
   { value: 'MULTIPLE_CHOICE', label: 'Více odpovědí' },
@@ -585,9 +597,11 @@ const topQuizRows = computed(() => quizPerformanceRows.value.slice(0, 5))
                             <div class="flex items-center gap-2 min-w-0">
                               <UIcon name="i-lucide-brain" class="text-muted shrink-0" />
                               <span class="truncate text-sm font-medium">{{ quiz.title }}</span>
+                              <UBadge :label="quiz.isVisible !== false ? 'Viditelný' : 'Skrytý'" :color="quiz.isVisible !== false ? 'success' : 'warning'" size="xs" />
                               <span class="text-xs text-dimmed">{{ quiz.questions?.length || 0 }} otázek</span>
                             </div>
                             <div class="flex gap-1 shrink-0" @click.stop>
+                              <UButton :icon="quiz.isVisible !== false ? 'i-lucide-eye-off' : 'i-lucide-eye'" size="xs" :color="quiz.isVisible !== false ? 'warning' : 'success'" variant="ghost" @click="toggleQuizVisibility(mod.id, quiz)" />
                               <UButton v-if="editable" icon="i-lucide-pencil" size="xs" color="neutral" variant="ghost" @click="startEditQuiz(mod.id, quiz)" />
                               <UButton v-if="editable" icon="i-lucide-trash-2" size="xs" color="error" variant="ghost" @click="deleteQuiz(mod.id, quiz.id)" />
                             </div>
@@ -699,6 +713,7 @@ const topQuizRows = computed(() => quizPerformanceRows.value.slice(0, 5))
 
                   <template v-if="courseStore.isLive">
                     <div class="grid grid-cols-1 gap-2">
+                      <TdaButton label="Spravovat relaci" icon="i-lucide-qr-code" block :to="`/dashboard/session/${courseId}`" />
                       <UButton label="Pozastavit" icon="i-lucide-pause" color="warning" block :loading="transitioning" @click="doTransition('pause')" />
                       <UButton label="Archivovat" icon="i-lucide-archive" color="neutral" variant="outline" block :loading="transitioning" @click="doTransition('archive')" />
                     </div>
