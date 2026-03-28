@@ -4,7 +4,7 @@
     v-model="selectedNamespace"
     :options="userStore.availableNamespaces"
     option-attribute="namespace.name"
-    value-attribute="namespace.id"
+    value-attribute="namespace.name"
     class="w-full"
     @update:model-value="handleSwitch"
   >
@@ -25,7 +25,7 @@
           <p class="text-xs text-gray-500 dark:text-gray-400">{{ getRoleLabel(option.role) }}</p>
         </div>
         <UIcon
-          v-if="option.namespace.id === userStore.activeNamespace?.id"
+          v-if="option.namespace.name === userStore.activeNamespace?.name"
           name="i-heroicons-check"
           class="w-5 h-5 text-primary-600 dark:text-primary-400 flex-shrink-0"
         />
@@ -46,25 +46,23 @@
 </template>
 
 <script setup lang="ts">
-import type { NamespaceMembership } from '~/types'
-
 defineProps<{
   collapsed?: boolean
 }>()
 
 const userStore = useUserStore()
-const selectedNamespace = ref(userStore.activeNamespace?.id)
+const selectedNamespace = ref(userStore.activeNamespace?.name)
 
 // Watch for changes in active namespace
-watch(() => userStore.activeNamespace?.id, (newId) => {
-  selectedNamespace.value = newId
+watch(() => userStore.activeNamespace?.name, (newName) => {
+  selectedNamespace.value = newName
 })
 
-async function handleSwitch(namespaceId: string) {
-  if (namespaceId === userStore.activeNamespace?.id) return
+async function handleSwitch(namespaceName: string) {
+  if (namespaceName === userStore.activeNamespace?.name) return
   
   try {
-    await userStore.switchNamespace(namespaceId)
+    await userStore.switchNamespace(namespaceName)
     // Reload page to refresh all namespace-scoped data
     window.location.reload()
   } catch (err) {

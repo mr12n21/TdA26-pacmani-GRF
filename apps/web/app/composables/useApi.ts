@@ -75,9 +75,9 @@ export function useApi() {
 
     // Automatically inject namespace context (skip for auth/invite endpoints)
     if (import.meta.client && !path.includes('/auth/') && !path.includes('/invite/')) {
-      const nsId = localStorage.getItem('tda_active_namespace')
-      if (nsId) {
-        headers['X-Namespace-Id'] = nsId
+      const nsName = localStorage.getItem('tda_active_namespace')
+      if (nsName) {
+        headers['X-Namespace-Name'] = nsName
       }
     }
 

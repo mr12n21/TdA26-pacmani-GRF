@@ -46,11 +46,19 @@ export const useUserStore = defineStore('user', () => {
       
       // Load active namespace from localStorage or user data
       if (import.meta.client && user.value?.namespaces) {
-        const savedNsId = localStorage.getItem('tda_active_namespace')
-        const nsId = savedNsId || user.value?.activeNamespaceId
+        const savedNsName = localStorage.getItem('tda_active_namespace')
         
-        if (nsId) {
-          const membership = user.value.namespaces.find(m => m.namespace.id === nsId)
+        if (savedNsName) {
+          // Try to find by name first (stored locally)
+          const membership = user.value.namespaces.find(m => m.namespace.name === savedNsName)
+          if (membership) {
+            setActiveNamespace(membership.namespace)
+          }
+        }
+        
+        // Fallback: try by activeNamespaceId from JWT
+        if (!activeNamespace.value && user.value?.activeNamespaceId) {
+          const membership = user.value.namespaces.find(m => m.namespace.id === user.value!.activeNamespaceId)
           if (membership) {
             setActiveNamespace(membership.namespace)
           }
@@ -96,16 +104,16 @@ export const useUserStore = defineStore('user', () => {
     await fetchUser()
   }
 
-  async function switchNamespace(namespaceId: string) {
+  async function switchNamespace(namespaceName: string) {
     const { post } = useApi()
     try {
-      const data = await post<{ token: string; refreshToken: string }>('/auth/switch-namespace', { namespaceId })
+      const data = await post<{ token: string; refreshToken: string }>('/auth/switch-namespace', { namespaceName })
       tokenStore.set(data.token)
       if (data.refreshToken) tokenStore.setRefresh(data.refreshToken)
       await fetchUser()
       
       // Update active namespace
-      const membership = availableNamespaces.value.find(m => m.namespace.id === namespaceId)
+      const membership = availableNamespaces.value.find(m => m.namespace.name === namespaceName)
       if (membership) {
         setActiveNamespace(membership.namespace)
       }
@@ -122,7 +130,7 @@ export const useUserStore = defineStore('user', () => {
   function setActiveNamespace(ns: Namespace) {
     activeNamespace.value = ns
     if (import.meta.client) {
-      localStorage.setItem('tda_active_namespace', ns.id)
+      localStorage.setItem('tda_active_namespace', ns.name)
     }
   }
 

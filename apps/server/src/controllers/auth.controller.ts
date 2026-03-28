@@ -262,18 +262,36 @@ export const switchNamespace = async (req: Request, res: Response) => {
   const userInfo = (req as any).user;
   if (!userInfo) return res.status(401).json({ message: 'Not authenticated' });
 
-  const { namespaceId } = req.body;
-  if (!namespaceId) return res.status(400).json({ message: 'namespaceId is required' });
+  const { namespaceId, namespaceName } = req.body;
+  if (!namespaceId && !namespaceName) {
+    return res.status(400).json({ message: 'namespaceId or namespaceName is required' });
+  }
 
   const user = await prisma.user.findUnique({ where: { id: userInfo.id } });
   if (!user) return res.status(404).json({ message: 'User not found' });
+
+  // Resolve namespace: by ID or by name
+  let resolvedNamespaceId = namespaceId;
+  if (!resolvedNamespaceId && namespaceName) {
+    const ns = await prisma.namespace.findFirst({
+      where: {
+        name: namespaceName,
+        members: { some: { userId: user.id, status: MemberStatus.APPROVED } },
+      },
+      select: { id: true },
+    });
+    if (!ns) {
+      return res.status(404).json({ message: 'Namespace not found or you are not a member' });
+    }
+    resolvedNamespaceId = ns.id;
+  }
 
   // Ověř, že uživatel je členem namespace
   const membership = await prisma.namespaceMember.findUnique({
     where: {
       userId_namespaceId: {
         userId: user.id,
-        namespaceId,
+        namespaceId: resolvedNamespaceId,
       },
     },
   });
@@ -290,7 +308,7 @@ export const switchNamespace = async (req: Request, res: Response) => {
     user.id,
     user.role,
     user.globalRole,
-    namespaceId,
+    resolvedNamespaceId,
     membership.role
   );
 
@@ -303,7 +321,7 @@ export const switchNamespace = async (req: Request, res: Response) => {
       name: user.name,
       role: user.role,
       globalRole: user.globalRole,
-      activeNamespaceId: namespaceId,
+      activeNamespaceId: resolvedNamespaceId,
       namespaceMemberRole: membership.role,
     },
   });

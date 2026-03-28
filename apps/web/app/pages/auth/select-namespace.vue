@@ -100,7 +100,7 @@ onMounted(async () => {
 
 async function selectNamespace(ns: Namespace) {
   try {
-    await userStore.switchNamespace(ns.id)
+    await userStore.switchNamespace(ns.name)
     navigateTo('/dashboard')
   } catch (err) {
     console.error('Failed to select namespace:', err)
