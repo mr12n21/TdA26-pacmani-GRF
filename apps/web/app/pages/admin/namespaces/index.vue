@@ -1,6 +1,6 @@
 <template>
-  <UDashboardPage>
-    <UDashboardPanel grow>
+  <UDashboardPage class="min-h-screen">
+    <UDashboardPanel grow class="min-h-screen w-full">
       <UDashboardNavbar title="Správa organizací">
         <template #right>
           <UButton
