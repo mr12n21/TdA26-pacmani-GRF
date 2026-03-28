@@ -1,5 +1,5 @@
 import { PrismaClient, NamespaceStatus, MemberStatus, NamespaceRole, GlobalRole } from '@prisma/client';
-import { nanoid } from 'nanoid';
+import { v4 as uuidv4 } from 'uuid';
 
 const prisma = new PrismaClient();
 
@@ -15,6 +15,55 @@ export async function createNamespace(data: {
       ...data,
       status: NamespaceStatus.ACTIVE,
     },
+  });
+}
+
+/**
+ * Vytvoří žádost o novou organizaci (namespace)
+ * - Namespace je vytvořen s status PENDING
+ * - Uživatel je přiřazen jako ORG_ADMIN s status PENDING
+ * - SUPER_ADMIN musí schválit
+ */
+export async function requestNewOrganization(data: {
+  userId: string;
+  name: string;
+  slug: string;
+  description?: string;
+  schoolType?: string;
+  city?: string;
+  country?: string;
+}) {
+  return prisma.$transaction(async (tx) => {
+    // 1. Vytvořit namespace s PENDING statusem
+    const namespace = await tx.namespace.create({
+      data: {
+        name: data.name,
+        slug: data.slug,
+        description: data.description,
+        status: NamespaceStatus.PENDING,
+      },
+    });
+
+    // 2. Přidat uživatele jako ORG_ADMIN s PENDING statusem
+    const membership = await tx.namespaceMember.create({
+      data: {
+        userId: data.userId,
+        namespaceId: namespace.id,
+        role: NamespaceRole.ORG_ADMIN,
+        status: MemberStatus.PENDING,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return { namespace, membership };
   });
 }
 
@@ -58,7 +107,7 @@ export async function listNamespaces(userId?: string, globalRole?: string) {
     },
   });
 
-  return memberships.map(m => m.namespace);
+  return memberships.map((m: any) => m.namespace);
 }
 
 export async function getNamespaceById(namespaceId: string) {
@@ -174,7 +223,8 @@ export async function createInviteLink(data: {
   expiresAt?: Date;
   maxUses?: number;
 }) {
-  const token = nanoid(32);
+  // Použij uuid pro token (32 znaků bez pomlček)
+  const token = uuidv4().replace(/-/g, '');
 
   return prisma.inviteLink.create({
     data: {

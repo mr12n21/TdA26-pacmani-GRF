@@ -7,34 +7,80 @@ const { isNotificationsSlideoverOpen } = useDashboard()
 
 const open = ref(false)
 
-const links = computed<NavigationMenuItem[][]>(() => [[
-  {
-    label: 'Přehled',
-    icon: 'i-lucide-layout-dashboard',
-    to: '/dashboard',
-    exact: true,
-    onSelect: () => { open.value = false }
-  },
-  {
-    label: 'Moje kurzy',
-    icon: 'i-lucide-book-open',
-    to: '/dashboard/courses',
-    onSelect: () => { open.value = false }
-  },
-  {
-    label: 'Statistiky',
-    icon: 'i-lucide-bar-chart-3',
-    to: '/dashboard/statistics',
-    onSelect: () => { open.value = false }
+const links = computed<NavigationMenuItem[][]>(() => {
+  const mainLinks: NavigationMenuItem[] = []
+  const bottomLinks: NavigationMenuItem[] = []
+
+  // Super Admin section
+  if (userStore.isSuperAdmin) {
+    mainLinks.push(
+      {
+        label: 'Správa organizací',
+        icon: 'i-heroicons-building-office',
+        to: '/admin/namespaces',
+        onSelect: () => { open.value = false }
+      },
+      {
+        label: 'Uživatelé',
+        icon: 'i-heroicons-users',
+        to: '/admin/users',
+        onSelect: () => { open.value = false }
+      }
+    )
   }
-], [
-  {
+
+  // Org Admin section
+  if (userStore.isOrgAdmin) {
+    mainLinks.push(
+      {
+        label: 'Členové organizace',
+        icon: 'i-heroicons-user-group',
+        to: '/settings/members',
+        onSelect: () => { open.value = false }
+      },
+      {
+        label: 'Nastavení školy',
+        icon: 'i-heroicons-cog-6-tooth',
+        to: '/settings/namespace',
+        onSelect: () => { open.value = false }
+      }
+    )
+  }
+
+  // Lecturer/Regular user section
+  if (userStore.isNamespaceLecturer || !userStore.isSuperAdmin) {
+    mainLinks.push(
+      {
+        label: 'Přehled',
+        icon: 'i-lucide-layout-dashboard',
+        to: '/dashboard',
+        exact: true,
+        onSelect: () => { open.value = false }
+      },
+      {
+        label: 'Moje kurzy',
+        icon: 'i-lucide-book-open',
+        to: '/dashboard/courses',
+        onSelect: () => { open.value = false }
+      },
+      {
+        label: 'Statistiky',
+        icon: 'i-lucide-bar-chart-3',
+        to: '/dashboard/statistics',
+        onSelect: () => { open.value = false }
+      }
+    )
+  }
+
+  bottomLinks.push({
     label: 'Veřejný web',
     icon: 'i-lucide-globe',
     to: '/',
     onSelect: () => { open.value = false }
-  }
-]])
+  })
+
+  return [mainLinks, bottomLinks]
+})
 
 const searchGroups = computed(() => [{
   id: 'links',
@@ -74,6 +120,14 @@ const searchGroups = computed(() => [{
 
       <template #default="{ collapsed }">
         <UDashboardSearchButton :collapsed="collapsed" class="bg-default/70 ring-default" />
+
+        <!-- Namespace Switcher (only for non-super admins) -->
+        <div v-if="!userStore.isSuperAdmin && userStore.hasActiveNamespace" class="px-3 py-2">
+          <p v-if="!collapsed" class="text-xs text-gray-500 dark:text-gray-400 mb-2 px-1">
+            Aktivní organizace
+          </p>
+          <NamespaceSwitcher :collapsed="collapsed" />
+        </div>
 
         <UNavigationMenu
           :collapsed="collapsed"

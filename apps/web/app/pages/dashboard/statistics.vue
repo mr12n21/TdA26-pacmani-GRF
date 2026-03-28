@@ -58,7 +58,9 @@ onMounted(async () => {
             { title: 'Celkem účastníků', value: stats.totalParticipants, color: 'text-blue-500', icon: 'i-lucide-users' },
             { title: 'Kvízů splněno', value: stats.totalQuizSubmissions, color: 'text-teal-500', icon: 'i-lucide-brain' },
             { title: 'Celkem modulů', value: stats.totalModules, color: 'text-default', icon: 'i-lucide-layers' },
-            { title: 'Celkem materiálů', value: stats.totalMaterials, color: 'text-default', icon: 'i-lucide-file' }
+            { title: 'Celkem materiálů', value: stats.totalMaterials, color: 'text-default', icon: 'i-lucide-file' },
+            { title: 'Celkem uživatelů', value: stats.totalUsers, color: 'text-purple-500', icon: 'i-lucide-user' },
+            { title: 'Organizací', value: stats.totalNamespaces, color: 'text-orange-500', icon: 'i-lucide-building-2' }
           ]"
           :key="item.title"
           class="stat-card"

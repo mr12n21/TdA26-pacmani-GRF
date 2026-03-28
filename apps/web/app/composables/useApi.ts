@@ -33,9 +33,13 @@ let _refreshPromise: Promise<{ token: string; refreshToken: string }> | null = n
 async function doRefreshToken(apiBase: string): Promise<{ token: string; refreshToken: string }> {
   const rt = tokenStore.getRefresh()
   if (!rt) throw new Error('No refresh token')
+  const oldToken = tokenStore.get()
+  const headers: Record<string, string> = {}
+  if (oldToken) headers.Authorization = `Bearer ${oldToken}`
   return $fetch<{ token: string; refreshToken: string }>(`${apiBase}/auth/refresh`, {
     method: 'POST',
-    body: { refreshToken: rt }
+    body: { refreshToken: rt },
+    headers,
   })
 }
 
@@ -57,6 +61,7 @@ export function useApi() {
   /**
    * Core request helper.  Injects the auth header, and retries once on
    * 401 after a transparent token refresh.
+   * Also automatically injects X-Namespace-Id header for namespace context.
    */
   async function request<T = any>(
     path: string,
@@ -67,6 +72,14 @@ export function useApi() {
       ...(options.headers as Record<string, string> ?? {})
     }
     if (token) headers.Authorization = `Bearer ${token}`
+
+    // Automatically inject namespace context (skip for auth/invite endpoints)
+    if (import.meta.client && !path.includes('/auth/') && !path.includes('/invite/')) {
+      const nsId = localStorage.getItem('tda_active_namespace')
+      if (nsId) {
+        headers['X-Namespace-Id'] = nsId
+      }
+    }
 
     const url = path.startsWith('http') ? path : `${apiBase}${path}`
 

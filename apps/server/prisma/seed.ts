@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma, Role, MaterialType, QuestionType, FeedType, CourseState, ParticipantType } from '@prisma/client';
+import { PrismaClient, Prisma, Role, GlobalRole, NamespaceRole, NamespaceStatus, MemberStatus, MaterialType, QuestionType, FeedType, CourseState, ParticipantType } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 
@@ -36,9 +36,24 @@ async function main() {
     await safeDelete(() => prisma.module.deleteMany({}), 'Module');
     await safeDelete(() => prisma.feedPost.deleteMany({}), 'FeedPost');
     await safeDelete(() => prisma.like.deleteMany({}), 'Like');
+    await safeDelete(() => prisma.inviteLink.deleteMany({}), 'InviteLink');
     await safeDelete(() => prisma.course.deleteMany({}), 'Course');
+    await safeDelete(() => prisma.namespaceMember.deleteMany({}), 'NamespaceMember');
+    await safeDelete(() => prisma.namespace.deleteMany({}), 'Namespace');
     await safeDelete(() => prisma.user.deleteMany({}), 'User');
   }
+
+  // ── Namespace (Výchozí organizace) ──────────────────────────────────
+
+  const defaultNamespace = await prisma.namespace.create({
+    data: {
+      id: uuidv4(),
+      name: 'Výchozí organizace',
+      slug: 'vychozi-organizace',
+      description: 'Výchozí namespace pro testovací data',
+      status: NamespaceStatus.ACTIVE,
+    },
+  });
 
   const hashedPassword = await bcrypt.hash('TdA26!', 10);
 
@@ -48,7 +63,8 @@ async function main() {
       email: 'admin@tda.com',
       passwordHash: hashedPassword,
       name: 'Admin',
-      role: Role.ADMIN,
+      role: Role.ADMIN, // deprecated - pro zpětnou kompatibilitu
+      globalRole: GlobalRole.SUPER_ADMIN,
     },
   });
 
@@ -58,7 +74,8 @@ async function main() {
       email: 'lecturer@tda.com',
       passwordHash: hashedPassword,
       name: 'lecturer',
-      role: Role.LECTURER,
+      role: Role.LECTURER, // deprecated
+      globalRole: GlobalRole.USER,
     },
   });
 
@@ -68,21 +85,91 @@ async function main() {
       email: 'test@example.com',
       passwordHash: hashedPassword,
       name: 'Test User',
-      role: Role.LECTURER,
+      role: Role.LECTURER, // deprecated
+      globalRole: GlobalRole.USER,
     },
   });
 
   const students = await Promise.all([
     prisma.user.create({
-      data: { id: uuidv4(), email: 'student1@tda.com', passwordHash: hashedPassword, name: 'Student1', role: Role.STUDENT },
+      data: { 
+        id: uuidv4(), 
+        email: 'student1@tda.com', 
+        passwordHash: hashedPassword, 
+        name: 'Student1', 
+        role: Role.STUDENT, // deprecated
+        globalRole: GlobalRole.USER,
+      },
     }),
     prisma.user.create({
-      data: { id: uuidv4(), email: 'student2@tda.com', passwordHash: hashedPassword, name: 'Student2', role: Role.STUDENT },
+      data: { 
+        id: uuidv4(), 
+        email: 'student2@tda.com', 
+        passwordHash: hashedPassword, 
+        name: 'Student2', 
+        role: Role.STUDENT, // deprecated
+        globalRole: GlobalRole.USER,
+      },
     }),
     prisma.user.create({
-      data: { id: uuidv4(), email: 'student3@tda.com', passwordHash: hashedPassword, name: 'Student3', role: Role.STUDENT },
+      data: { 
+        id: uuidv4(), 
+        email: 'student3@tda.com', 
+        passwordHash: hashedPassword, 
+        name: 'Student3', 
+        role: Role.STUDENT, // deprecated
+        globalRole: GlobalRole.USER,
+      },
     }),
   ]);
+
+  // ── Namespace Memberships ──────────────────────────────────────────
+
+  // Admin je ORG_ADMIN ve výchozím namespace
+  await prisma.namespaceMember.create({
+    data: {
+      id: uuidv4(),
+      userId: admin.id,
+      namespaceId: defaultNamespace.id,
+      role: NamespaceRole.ORG_ADMIN,
+      status: MemberStatus.APPROVED,
+      approvedAt: new Date(),
+    },
+  });
+
+  // Lecturer a test user jsou LECTURER v namespace
+  await prisma.namespaceMember.createMany({
+    data: [
+      {
+        id: uuidv4(),
+        userId: lecturer.id,
+        namespaceId: defaultNamespace.id,
+        role: NamespaceRole.LECTURER,
+        status: MemberStatus.APPROVED,
+        approvedAt: new Date(),
+      },
+      {
+        id: uuidv4(),
+        userId: testUser.id,
+        namespaceId: defaultNamespace.id,
+        role: NamespaceRole.LECTURER,
+        status: MemberStatus.APPROVED,
+        approvedAt: new Date(),
+      },
+    ],
+  });
+
+  // Studenti jsou STUDENT v namespace
+  await prisma.namespaceMember.createMany({
+    data: students.map((student: any) => ({
+      id: uuidv4(),
+      userId: student.id,
+      namespaceId: defaultNamespace.id,
+      role: NamespaceRole.STUDENT,
+      status: MemberStatus.APPROVED,
+      approvedAt: new Date(),
+    })),
+  });
 
   // ── Course 1: Draft with modules ───────────────────────────────────
 
@@ -93,6 +180,7 @@ async function main() {
       description: 'Intro to TdA',
       state: CourseState.DRAFT,
       ownerId: lecturer.id,
+      namespaceId: defaultNamespace.id,
     },
   });
 
@@ -204,6 +292,7 @@ async function main() {
       description: 'Advanced TdA',
       state: CourseState.DRAFT,
       ownerId: lecturer.id,
+      namespaceId: defaultNamespace.id,
     },
   });
 
@@ -224,6 +313,7 @@ async function main() {
     data: {
       id: uuidv4(),
       courseId: course1.id,
+      namespaceId: defaultNamespace.id,
       authorId: lecturer.id,
       content: 'Welcome to the course!',
       type: FeedType.MANUAL,
@@ -234,6 +324,7 @@ async function main() {
     data: {
       id: uuidv4(),
       courseId: course1.id,
+      namespaceId: defaultNamespace.id,
       content: 'New material added: Sample URL',
       type: FeedType.AUTO,
     },

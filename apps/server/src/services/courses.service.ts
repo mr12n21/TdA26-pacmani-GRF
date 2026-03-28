@@ -251,6 +251,7 @@ export const duplicateCourse = async (courseId: string, userId: string) => {
         state: CourseState.DRAFT,
         isDuplicate: true,
         ownerId: source.ownerId,
+        namespaceId: source.namespaceId,
       },
     });
 

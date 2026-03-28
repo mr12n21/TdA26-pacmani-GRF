@@ -33,3 +33,6 @@ take vstup do faltormy bude ovlivnem roli uzivatele a namespacem ktery bude inte
 
 
 co se tyce prihlasovani beznych uzivatel zatim staci qr-code/ odkaz ktery bude lektor udelaovat pristup do kruzu. Lektor take potrbeuje mit prehled o tom kolik je pripojenych lidi a muze spiuste odkrivat ruzne casi. 
+
+
+co se tyce skruktury proste se drz aktualni a dopis potrebne veci. 

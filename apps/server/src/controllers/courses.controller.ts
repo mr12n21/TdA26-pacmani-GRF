@@ -33,6 +33,10 @@ export const createCourse = async (req: Request, res: Response) => {
   if (!resolvedTitle) return res.status(400).json({ message: 'Title required' });
 
   const ownerId = req.user?.id ?? await getDefaultLecturerId();
+  
+  // Get namespaceId from request context
+  const namespaceId = req.namespace?.id || req.user?.activeNamespaceId;
+  if (!namespaceId) return res.status(400).json({ message: 'Namespace context required' });
 
   const course = await prisma.course.create({
     data: {
@@ -41,6 +45,7 @@ export const createCourse = async (req: Request, res: Response) => {
       description,
       state: CourseState.DRAFT,
       ownerId,
+      namespaceId,
     },
   });
 
@@ -167,7 +172,7 @@ export const likeCourse = async (req: Request, res: Response) => {
   const course = await prisma.course.findUnique({ where: { id: courseId } });
   if (!course) return res.status(404).json({ message: 'Course not found' });
   try {
-    await prisma.like.create({ data: { userId, courseId } });
+    await prisma.like.create({ data: { userId, courseId, namespaceId: course.namespaceId } });
   } catch (e) { /* unique constraint -> already liked */ }
   const likesCount = await prisma.like.count({ where: { courseId } });
   res.json({ liked: true, likesCount });

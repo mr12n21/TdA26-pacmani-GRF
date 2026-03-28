@@ -64,13 +64,14 @@ export async function namespaceMiddleware(req: Request, res: Response, next: Nex
       return res.status(404).json({ error: 'Namespace not found' });
     }
 
-    if (namespace.status !== 'ACTIVE') {
-      return res.status(403).json({ error: 'Namespace is not active' });
-    }
-
     // 3. Pokud je uživatel přihlášen, ověř membership (kromě SUPER_ADMIN)
     if (req.user) {
       const isSuperAdmin = req.user.globalRole === GlobalRole.SUPER_ADMIN;
+
+      // SUPER_ADMIN může přistupovat k libovolnému namespace, ostatní jen k ACTIVE
+      if (!isSuperAdmin && namespace.status !== 'ACTIVE') {
+        return res.status(403).json({ error: 'Namespace is not active' });
+      }
 
       if (!isSuperAdmin) {
         const membership = await prisma.namespaceMember.findUnique({
