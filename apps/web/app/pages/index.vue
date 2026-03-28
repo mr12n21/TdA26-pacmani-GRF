@@ -113,26 +113,40 @@ const features = [
     <section class="py-24 section-gradient">
       <UContainer>
         <div class="mx-auto max-w-3xl text-center mb-14">
-          <p class="text-xs uppercase tracking-[0.28em] text-accent">Jak se s TdA učí</p>
-          <h2 class="mt-4 text-3xl font-bold">Vyberete téma, přiřadíte úlohu a sledujete výkon v reálném čase</h2>
-          <p class="mt-4 text-muted">Platforma je navržena tak, aby se studenti rychle zapojili a vyučující měli okamžitý přehled o výsledcích.</p>
+          <p class="text-xs uppercase tracking-[0.28em] text-blue-600 dark:text-teal-400 font-semibold">
+            Jak se s TdA učí
+          </p>
+          <h2 class="mt-4 text-3xl font-bold text-slate-900 dark:text-white sm:text-4xl">
+            Vyberete téma, přiřadíte úlohu a sledujete výkon v reálném čase
+          </h2>
+          <p class="mt-4 text-lg">
+            Platforma je navržena tak, aby se studenti rychle zapojili a vyučující měli okamžitý přehled o výsledcích.
+          </p>
         </div>
 
         <div class="grid gap-6 lg:grid-cols-3">
-          <div class="step-card">
+          <div class="step-card bg-white dark:bg-slate-900/50 border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
             <span class="step-number">1.</span>
-            <h3>Vytvoříte virtuální třídu</h3>
-            <p>Na pár kliknutí vytvoříte skupinu a pozvete do ní žáky pomocí jednoduchého importu.</p>
+            <h3 class="text-slate-900 dark:text-white font-bold text-xl mt-4">Vytvoříte virtuální třídu</h3>
+            <p class="text-slate-600 dark:text-slate-400 mt-2">
+              Na pár kliknutí vytvoříte skupinu a pozvete do ní žáky pomocí jednoduchého importu.
+            </p>
           </div>
-          <div class="step-card">
+
+          <div class="step-card bg-white dark:bg-slate-900/50 border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
             <span class="step-number">2.</span>
-            <h3>Vyberete si úlohu</h3>
-            <p>Vyberete z připravených témat a zadáte úlohu konkrétní skupině studentů.</p>
+            <h3 class="text-slate-900 dark:text-white font-bold text-xl mt-4">Vyberete si úlohu</h3>
+            <p class="text-slate-600 dark:text-slate-400 mt-2">
+              Vyberete z připravených témat a zadáte úlohu konkrétní skupině studentů.
+            </p>
           </div>
-          <div class="step-card">
+
+          <div class="step-card bg-white dark:bg-slate-900/50 border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
             <span class="step-number">3.</span>
-            <h3>Sledujete práci v reálném čase</h3>
-            <p>Při plnění vidíte postup celé třídy i jednotlivých žáků a můžete rychle zasáhnout.</p>
+            <h3 class="text-slate-900 dark:text-white font-bold text-xl mt-4">Sledujete práci v reálném čase</h3>
+            <p class="text-slate-600 dark:text-slate-400 mt-2">
+              Při plnění vidíte postup celé třídy i jednotlivých žáků a můžete rychle zasáhnout.
+            </p>
           </div>
         </div>
       </UContainer>
@@ -148,15 +162,15 @@ const features = [
 
         <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <div class="rounded-3xl border border-default bg-elevated p-6 card-glow">
-            <h3 class="font-semibold mb-2">Živé úkoly</h3>
+            <h3 class="font-semibold mb-2 text-xs">Živé úkoly</h3>
             <p class="text-sm text-muted leading-relaxed">Studijní úlohy, které studenty vedou krok za krokem a podporují praktické dovednosti.</p>
           </div>
           <div class="rounded-3xl border border-default bg-elevated p-6 card-glow">
-            <h3 class="font-semibold mb-2">Správa tříd</h3>
+            <h3 class="font-semibold mb-2 text-xs">Správa tříd</h3>
             <p class="text-sm text-muted leading-relaxed">Seskupujte studenty, přiřazujte úlohy a spravujte průběh celé výuky z jednoho místa.</p>
           </div>
           <div class="rounded-3xl border border-default bg-elevated p-6 card-glow">
-            <h3 class="font-semibold mb-2">Vyhodnocení</h3>
+            <h3 class="font-semibold mb-2 text-xs">Vyhodnocení</h3>
             <p class="text-sm text-muted leading-relaxed">Přehledné výsledky výkonu i podrobné statistiky o práci celé třídy i jednotlivců.</p>
           </div>
         </div>

@@ -421,15 +421,15 @@
 }
 
 .text-xs {
-  font-size: 0.875rem; /* 14px */
+  font-size: 1.2rem; /* 14px */
 }
 
 .text-sm {
-  font-size: 1rem; /* 16px */
+  font-size: 1.1rem; /* 16px */
 }
 
 .text-base {
-  font-size: 1.125rem; /* 18px */
+  font-size: 1.3rem; /* 18px */
 }
 
 .text-lg {
@@ -507,7 +507,6 @@
 
 .step-card p {
   margin-top: 0.75rem;
-  color: #475569;
   line-height: 1.75;
 }
 
