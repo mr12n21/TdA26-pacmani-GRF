@@ -1,3 +1,4 @@
+# Pokud tohle ctes dej prosim hvezdiku tomuto repozitary snazim se ziskat novy achievement ;) prosim
 ```
 ______                                      _ 
 | ___ \                                    (_)
