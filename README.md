@@ -19,7 +19,7 @@ ______                                      _
 
 ### Členové týmu a role
 
-* **[Marek Brož](https://github.com/mr12n21)** - Fullstack + Architecturer
+* **[Marek Brož](https://github.com/mr12n21)** - Fullstack
 * **[Marek Vyleťal](https://github.com/Markusdeatrius)** – Frontend vývoj
 
 ---
