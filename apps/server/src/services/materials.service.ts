@@ -5,8 +5,6 @@ import fs from 'fs';
 import { sendEvent, sendStatsEvent } from '../libs/sse.manager';
 import { assertDraftState, assertOwnership, StateTransitionError } from './state-machine.service';
 
-// ── helpers ──────────────────────────────────────────────────────────
-
 async function getModuleOrThrow(moduleId: string) {
   const mod = await prisma.module.findUnique({ where: { id: moduleId } });
   if (!mod) throw new StateTransitionError('Module not found.', 404);
@@ -24,8 +22,6 @@ async function getMaterialOrThrow(materialId: string) {
   if (!material) throw new StateTransitionError('Material not found.', 404);
   return material;
 }
-
-// ── CRUD ─────────────────────────────────────────────────────────────
 
 export const listMaterials = async (moduleId: string) => {
   await getModuleOrThrow(moduleId);
@@ -60,7 +56,6 @@ export const createMaterial = async (
   assertOwnership(userId, course.ownerId, globalRole);
   assertDraftState(course.state);
 
-  // Determine order: find max order + 1
   const lastMaterial = await prisma.material.findFirst({
     where: { moduleId },
     orderBy: { order: 'desc' },
@@ -84,7 +79,6 @@ export const createMaterial = async (
     },
   });
 
-  // SSE broadcast
   sendEvent(mod.courseId, 'material_created', {
     materialId: created.id,
     moduleId,
@@ -117,7 +111,6 @@ export const updateMaterial = async (
   assertOwnership(userId, course.ownerId, globalRole);
   assertDraftState(course.state);
 
-  // If replacing a file, remove old one
   if (data.filePath && material.filePath) {
     try { fs.unlinkSync(material.filePath); } catch { /* ignore */ }
   }
@@ -135,7 +128,6 @@ export const updateMaterial = async (
     },
   });
 
-  // SSE broadcast
   sendEvent(mod.courseId, 'material_updated', {
     materialId: updated.id,
     moduleId: material.moduleId,
@@ -159,7 +151,6 @@ export const deleteMaterial = async (materialId: string, userId: string, globalR
 
   await prisma.material.delete({ where: { id: materialId } });
   
-  // SSE broadcast
   sendEvent(mod.courseId, 'material_deleted', {
     materialId,
     moduleId: material.moduleId,
@@ -188,17 +179,13 @@ export const reorderMaterial = async (
 
   const oldOrder = material.order;
   
-  // Use transaction to avoid constraint violations
   await prisma.$transaction(async (tx) => {
-    // First, move target material to a temporary high position to free up its slot
     await tx.material.update({
       where: { id: materialId },
       data: { order: 999999 },
     });
 
-    // Adjust orders of other materials
     if (newOrder < oldOrder) {
-      // Moving up: shift materials down
       await tx.material.updateMany({
         where: {
           moduleId,
@@ -207,7 +194,6 @@ export const reorderMaterial = async (
         data: { order: { increment: 1 } },
       });
     } else if (newOrder > oldOrder) {
-      // Moving down: shift materials up
       await tx.material.updateMany({
         where: {
           moduleId,
@@ -217,7 +203,6 @@ export const reorderMaterial = async (
       });
     }
 
-    // Finally, move target material to its new position
     await tx.material.update({
       where: { id: materialId },
       data: { order: newOrder },

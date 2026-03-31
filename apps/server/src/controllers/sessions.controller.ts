@@ -2,10 +2,6 @@ import { Request, Response } from 'express';
 import * as sessionsService from '../services/sessions.service';
 import { handleControllerError } from './controller-error';
 
-/**
- * POST /courses/:courseId/session
- * Create a new session code (deactivates previous).
- */
 export const createSession = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
@@ -29,10 +25,6 @@ export const createSession = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * GET /courses/:courseId/session
- * Get the active session code for a course.
- */
 export const getActiveSession = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
@@ -54,10 +46,6 @@ export const getActiveSession = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * DELETE /courses/:courseId/session
- * Deactivate all session codes for a course.
- */
 export const deactivateSession = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
@@ -68,10 +56,6 @@ export const deactivateSession = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * POST /session/validate
- * Public endpoint: validate a session code, return course info.
- */
 export const validateSession = async (req: Request, res: Response) => {
   try {
     const { code } = req.body;
@@ -89,10 +73,7 @@ export const validateSession = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * POST /session/join
- * Public endpoint: join a course via session code with a nickname.
- */
+
 export const joinViaSession = async (req: Request, res: Response) => {
   try {
     const { code, nickname } = req.body;
@@ -103,10 +84,8 @@ export const joinViaSession = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Nickname is required (1-50 characters)' });
     }
 
-    // Validate the session code
     const session = await sessionsService.validateSessionCode(code.trim());
 
-    // Import participant service and join the course
     const participantsService = await import('../services/participants.service');
     const participant = await participantsService.joinCourse(session.courseId, {
       userId: req.user?.id,

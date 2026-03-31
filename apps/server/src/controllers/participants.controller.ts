@@ -2,10 +2,6 @@ import { Request, Response } from 'express';
 import * as participantsService from '../services/participants.service';
 import { handleControllerError } from './controller-error';
 
-/**
- * POST /courses/:courseId/join
- * Join a course as a participant (anonymous or registered).
- */
 export const joinCourse = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
@@ -29,10 +25,7 @@ export const joinCourse = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * GET /courses/:courseId/participants
- * List all participants (lecturer only).
- */
+
 export const listParticipants = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
@@ -51,10 +44,6 @@ export const listParticipants = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * PATCH /courses/:courseId/participants/:participantId
- * Update participant nickname.
- */
 export const updateParticipant = async (req: Request, res: Response) => {
   try {
     const { participantId } = req.params;
@@ -71,10 +60,7 @@ export const updateParticipant = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * DELETE /courses/:courseId/participants/:participantId
- * Kick a participant from the course (lecturer only).
- */
+
 export const kickParticipant = async (req: Request, res: Response) => {
   try {
     const { courseId, participantId } = req.params;

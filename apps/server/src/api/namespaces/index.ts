@@ -14,15 +14,12 @@ import {
 
 const router = express.Router();
 
-// ─── Organization Request (Regular users) ────────────────────────────
 
 router.post(
   '/namespaces/request',
   authMiddleware,
   namespacesCtrl.requestNewOrganizationHandler
 );
-
-// ─── Namespace Management (SUPER_ADMIN only) ─────────────────────────
 
 router.post(
   '/namespaces',
@@ -60,7 +57,6 @@ router.delete(
   namespacesCtrl.deleteNamespaceHandler
 );
 
-// ─── Namespace Members Management ────────────────────────────────────
 
 router.get(
   '/namespaces/:namespaceId/members',
@@ -94,7 +90,6 @@ router.delete(
   namespacesCtrl.removeMemberHandler
 );
 
-// ─── Direct Member Add (admin adds user directly) ───────────────────
 
 router.post(
   '/namespaces/:namespaceId/members/add',
@@ -104,8 +99,6 @@ router.post(
   namespacesCtrl.addMemberDirectlyHandler
 );
 
-// ─── Search users to add to namespace ────────────────────────────────
-
 router.get(
   '/namespaces/:namespaceId/members/search',
   authMiddleware,
@@ -114,16 +107,13 @@ router.get(
   namespacesCtrl.searchUsersForNamespaceHandler
 );
 
-// ─── Namespace Quizzes (all quizzes across courses in namespace) ─────
-
 router.get(
   '/namespaces/:namespaceId/quizzes',
   authMiddleware,
+
   namespaceMiddleware,
   namespacesCtrl.listNamespaceQuizzesHandler
 );
-
-// ─── Invite Links ────────────────────────────────────────────────────
 
 router.post(
   '/namespaces/:namespaceId/invite',
@@ -150,7 +140,6 @@ router.delete(
   namespacesCtrl.deleteInviteLinkHandler
 );
 
-// ─── Public Invite Entry (auth required to join) ─────────────────────
 
 router.post(
   '/invite/:token',

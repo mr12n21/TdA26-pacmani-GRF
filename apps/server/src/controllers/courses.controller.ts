@@ -34,7 +34,6 @@ export const createCourse = async (req: Request, res: Response) => {
 
   const ownerId = req.user?.id ?? await getDefaultLecturerId();
   
-  // Get namespaceId from request context
   const namespaceId = req.namespace?.id || req.user?.activeNamespaceId;
   if (!namespaceId) return res.status(400).json({ message: 'Namespace context required' });
 
@@ -89,15 +88,12 @@ export const getCourse = async (req: Request, res: Response) => {
     const { courseId } = req.params;
     const course = await coursesService.getFullCourseData(courseId, false);
 
-    // Owner / lecturer sees everything
     const ownerMatch = req.user && req.user.id === course.ownerId;
     const isLecturer = req.user && req.user.role === 'LECTURER';
     if (ownerMatch || isLecturer || !req.user) {
-      // Unauthenticated requests are allowed full access (for public / test usage)
       return res.json(toFullCoursePayload(course));
     }
 
-    // Authenticated non-owner student: limited access
     if (course.state === CourseState.DRAFT || course.state === CourseState.ARCHIVED) {
       return res.status(403).json({ message: 'This course is not currently accessible.' });
     }
@@ -321,7 +317,6 @@ export const getUpdatesSinceHandler = async (req: Request, res: Response) => {
   }
 };
 
-// ── SSE endpoint ─────────────────────────────────────────────────────
 
 export const courseSSEStream = async (req: Request, res: Response) => {
   const { courseId } = req.params;
@@ -344,13 +339,11 @@ export const courseSSEStream = async (req: Request, res: Response) => {
 
   const user = resolveSseUser();
 
-  // Only allow SSE connections for LIVE courses (or lecturer in any state)
   const isLecturer = Boolean(user && ['LECTURER', 'ADMIN'].includes(user.role));
   if (!isLecturer && course.state !== CourseState.LIVE) {
     return res.status(403).json({ message: 'Real-time stream is only available during live sessions.' });
   }
 
-  // Set SSE headers
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
@@ -362,7 +355,6 @@ export const courseSSEStream = async (req: Request, res: Response) => {
   const role = isLecturer ? 'lecturer' : 'student';
   const clientId = addClient(courseId, res, role);
 
-  // Send initial connection event
   res.write(`event: connected\ndata: ${JSON.stringify({
     clientId,
     role,

@@ -22,10 +22,7 @@ const clients: Map<string, Client[]> = new Map();
 const statsClients: StatsClient[] = [];
 const courseListClients: CourseListClient[] = [];
 
-/**
- * Add a client to an SSE channel for a course.
- * Returns the clientId and the current anonymous student count.
- */
+
 export function addClient(courseId: string, res: Response, role: ClientRole = 'student') {
   const clientId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   if (!clients.has(courseId)) clients.set(courseId, []);
@@ -33,7 +30,6 @@ export function addClient(courseId: string, res: Response, role: ClientRole = 's
 
   res.on('close', () => removeClient(courseId, clientId));
 
-  // Notify all connected clients about updated student count
   if (role === 'student') {
     const count = getStudentCount(courseId);
     sendEvent(courseId, 'student_joined', { anonymousCount: count });
@@ -76,16 +72,11 @@ export function sendEvent(courseId: string, event: string, data: any) {
     courseClients.forEach(client => {
       try {
         client.res.write(payload);
-      } catch {
-        // Client disconnected, will be cleaned up on 'close'
-      }
+      } catch {}
     });
   }
 }
 
-/**
- * Send an event only to lecturers connected to a course channel.
- */
 export function sendToLecturers(courseId: string, event: string, data: any) {
   const courseClients = clients.get(courseId);
   if (courseClients) {
@@ -93,9 +84,7 @@ export function sendToLecturers(courseId: string, event: string, data: any) {
     courseClients.filter(c => c.role === 'lecturer').forEach(client => {
       try {
         client.res.write(payload);
-      } catch {
-        // ignore
-      }
+      } catch {}
     });
   }
 }
@@ -130,9 +119,7 @@ export function sendStatsEvent(event: string, data: any) {
   for (const client of statsClients) {
     try {
       client.res.write(payload);
-    } catch {
-      // client disconnected, cleanup handled by close listener
-    }
+    } catch {}
   }
 }
 
@@ -156,8 +143,6 @@ export function sendCourseListEvent(event: string, data: any) {
   for (const client of courseListClients) {
     try {
       client.res.write(payload);
-    } catch {
-      // client disconnected, cleanup handled by close listener
-    }
+    } catch {}
   }
 }

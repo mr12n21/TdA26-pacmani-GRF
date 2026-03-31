@@ -96,10 +96,7 @@ export const joinCourse = async (
   return participant;
 };
 
-/**
- * Resolve participant for quiz submission.
- * Auto-creates if doesn't exist.
- */
+
 export const resolveParticipant = async (
   courseId: string,
   userId?: string,
@@ -125,9 +122,6 @@ export const listParticipants = async (courseId: string) => {
   });
 };
 
-/**
- * List only active (not kicked) participants.
- */
 export const listActiveParticipants = async (courseId: string) => {
   await getCourseOrThrow(courseId);
   return prisma.participant.findMany({
@@ -147,10 +141,7 @@ export const updateNickname = async (participantId: string, nickname: string) =>
   });
 };
 
-/**
- * Kick a participant from a course.
- * Sets kickedAt timestamp so they cannot rejoin easily.
- */
+
 export const kickParticipant = async (courseId: string, participantId: string) => {
   const p = await prisma.participant.findFirst({
     where: { id: participantId, courseId },

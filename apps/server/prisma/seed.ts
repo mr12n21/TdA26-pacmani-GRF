@@ -159,7 +159,6 @@ async function main() {
     ],
   });
 
-  // Studenti jsou STUDENT v namespace
   await prisma.namespaceMember.createMany({
     data: students.map((student: any) => ({
       id: uuidv4(),
@@ -170,8 +169,6 @@ async function main() {
       approvedAt: new Date(),
     })),
   });
-
-  // ── Course 1: Draft with modules ───────────────────────────────────
 
   const course1 = await prisma.course.create({
     data: {

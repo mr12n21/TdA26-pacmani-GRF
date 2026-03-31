@@ -116,8 +116,6 @@ export const submitQuiz = async (req: Request, res: Response) => {
   }
 };
 
-// ── Backward-compatible course-level quiz endpoints ──────────────────
-// These work without modules in the URL path and without auth.
 
 export const listCourseQuizzes = async (req: Request, res: Response) => {
   try {

@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// ─── Course Schemas ──────────────────────────────────────────────────
 
 export const courseCreateSchema = z.object({
   title: z.string().min(1),
@@ -12,7 +11,6 @@ export const courseReadySchema = z.object({
   description: z.string().min(1, 'Course description is required before going live.'),
 });
 
-// ─── State Machine Transition Schemas ────────────────────────────────
 
 export const scheduleSchema = z.object({
   startTime: z.string().refine((val) => {
@@ -28,7 +26,6 @@ export const rescheduleSchema = z.object({
   }, { message: 'startTime must be a valid future ISO date string' }),
 });
 
-// ─── Module Schemas ──────────────────────────────────────────────────
 
 export const moduleCreateSchema = z.object({
   title: z.string().min(1),
@@ -46,7 +43,6 @@ export const revealModuleSchema = z.object({
   revealed: z.boolean().default(true),
 });
 
-// ─── Material Schemas (belong to Module) ─────────────────────────────
 
 export const materialCreateSchema = z.object({
   type: z.enum(['FILE', 'URL', 'VIDEO', 'TEXT']),
@@ -61,7 +57,6 @@ export const materialUpdateSchema = z.object({
   url: z.string().url().optional(),
 });
 
-// ─── Quiz Schemas (belong to Module) ─────────────────────────────────
 
 export const questionSchema = z.object({
   text: z.string().min(1),
@@ -69,7 +64,6 @@ export const questionSchema = z.object({
                  'singleChoice', 'multipleChoice', 'text', 'trueFalse']),
   choices: z.array(z.string()).optional(),
   correctAnswer: z.union([z.number(), z.array(z.number()), z.string(), z.boolean()]).optional(),
-  // Legacy field names (backward compat)
   options: z.array(z.string()).optional(),
   correctIndex: z.number().optional(),
   correctIndices: z.array(z.number()).optional(),
@@ -97,7 +91,6 @@ export const quizSubmitSchema = z.object({
   })),
 });
 
-// ─── Participant Schemas ─────────────────────────────────────────────
 
 export const participantJoinSchema = z.object({
   nickname: z.string().min(1).max(50).optional(),
@@ -108,7 +101,6 @@ export const participantUpdateSchema = z.object({
   nickname: z.string().min(1).max(50),
 });
 
-// ─── Namespace Schemas ───────────────────────────────────────────────
 
 export const namespaceCreateSchema = z.object({
   name: z.string().min(1, 'Namespace name is required'),

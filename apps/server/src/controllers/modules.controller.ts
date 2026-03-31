@@ -6,7 +6,6 @@ import { handleControllerError } from './controller-error';
 export const listModules = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
-    // Non-owner students only see revealed modules
     const isLecturer = req.user && (req.user.role === 'LECTURER' || req.user.role === 'ADMIN');
     const onlyRevealed = !isLecturer;
     const modules = await modulesService.listModules(courseId, onlyRevealed);

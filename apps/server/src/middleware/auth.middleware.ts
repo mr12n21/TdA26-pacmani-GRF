@@ -4,7 +4,7 @@ import { config } from '../config/index';
 
 interface User {
   id: string;
-  role: string; // @deprecated - použij globalRole
+  role: string;
   globalRole?: string;
   activeNamespaceId?: string;
   namespaceMemberRole?: string;
@@ -31,10 +31,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   }
 };
 
-/**
- * Optional auth: attaches user to req if a valid token is present,
- * but does NOT reject the request if missing or invalid.
- */
+
 export const optionalAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return next();
@@ -42,8 +39,6 @@ export const optionalAuthMiddleware = (req: Request, res: Response, next: NextFu
   try {
     const decoded = jwt.verify(token, config.jwtSecret) as User;
     req.user = decoded;
-  } catch {
-    // ignore invalid token for optional auth
-  }
+  } catch {}
   next();
 };

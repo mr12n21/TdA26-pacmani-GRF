@@ -16,7 +16,3 @@ export const config = {
   corsOrigin: process.env.CORS_ORIGIN || '*',
   port: process.env.PORT || 3000,
 };
-
-
-
-//upravit aby fungovali env v example modu

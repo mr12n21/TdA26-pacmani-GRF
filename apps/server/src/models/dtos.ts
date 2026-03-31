@@ -1,19 +1,16 @@
-// ─── Course DTOs ─────────────────────────────────────────────────────
-
 export interface CourseCreateDTO {
   title: string;
   description?: string;
 }
 
 export interface ScheduleDTO {
-  startTime: string; // ISO date string
+  startTime: string;
 }
 
 export interface RescheduleDTO {
-  startTime: string; // ISO date string
+  startTime: string;
 }
 
-// ─── Module DTOs ─────────────────────────────────────────────────────
 
 export interface ModuleCreateDTO {
   title: string;
@@ -27,7 +24,6 @@ export interface ModuleUpdateDTO {
   order?: number;
 }
 
-// ─── Material DTOs ───────────────────────────────────────────────────
 
 export interface MaterialCreateDTO {
   type: 'FILE' | 'URL' | 'VIDEO' | 'TEXT';
@@ -42,7 +38,6 @@ export interface MaterialUpdateDTO {
   url?: string;
 }
 
-// ─── Quiz DTOs ───────────────────────────────────────────────────────
 
 export interface QuestionCreateDTO {
   text: string;
@@ -74,7 +69,6 @@ export interface QuizSubmitAnswerDTO {
   selectedAnswer?: boolean;
 }
 
-// ─── Participant DTOs ────────────────────────────────────────────────
 
 export interface ParticipantJoinDTO {
   nickname?: string;
@@ -84,8 +78,6 @@ export interface ParticipantJoinDTO {
 export interface ParticipantUpdateDTO {
   nickname: string;
 }
-
-// ─── Namespace DTOs ──────────────────────────────────────────────────
 
 export interface NamespaceCreateDTO {
   name: string;

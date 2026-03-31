@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { sendEvent, sendStatsEvent } from '../libs/sse.manager';
 import { assertDraftState, assertOwnership, StateTransitionError } from './state-machine.service';
 
-// ── helpers ──────────────────────────────────────────────────────────
 
 async function getModuleOrThrow(moduleId: string) {
   const mod = await prisma.module.findUnique({ where: { id: moduleId } });
@@ -39,8 +38,6 @@ async function assertQuizEditPermission(userId: string, ownerId: string, globalR
 
   assertOwnership(userId, ownerId);
 }
-
-// ── question type normalisation ──────────────────────────────────────
 
 export function normalizeQuestionType(type: string): QuestionType | null {
   if (!type) return null;
@@ -87,7 +84,6 @@ export function buildQuestionData(quizId: string, q: any) {
   } else if (resolvedType === QuestionType.TRUE_FALSE) {
     correctAnswer = Boolean(q.correctAnswer ?? q.selectedAnswer);
   } else {
-    // TEXT
     correctAnswer = String(q.correctAnswer ?? '');
   }
 
@@ -101,7 +97,6 @@ export function buildQuestionData(quizId: string, q: any) {
   };
 }
 
-// ── Quiz CRUD ────────────────────────────────────────────────────────
 
 export const listQuizzes = async (moduleId: string) => {
   await getModuleOrThrow(moduleId);
@@ -146,7 +141,6 @@ export const createQuiz = async (
     include: { questions: true },
   });
 
-  // SSE broadcast
   sendEvent(mod.courseId, 'quiz_created', {
     quizId: created!.id,
     moduleId,
@@ -188,7 +182,6 @@ export const updateQuiz = async (
     include: { questions: true },
   });
 
-  // SSE broadcast
   sendEvent(mod.courseId, 'quiz_updated', {
     quizId: updated!.id,
     moduleId: quiz.moduleId,
@@ -207,7 +200,6 @@ export const deleteQuiz = async (quizId: string, userId: string, globalRole?: st
 
   await prisma.quiz.delete({ where: { id: quizId } });
   
-  // SSE broadcast
   sendEvent(mod.courseId, 'quiz_deleted', {
     quizId,
     moduleId: quiz.moduleId,
@@ -217,7 +209,6 @@ export const deleteQuiz = async (quizId: string, userId: string, globalRole?: st
   return quiz;
 };
 
-// ── Quiz Submission ──────────────────────────────────────────────────
 
 export const submitQuiz = async (
   quizId: string,
@@ -267,7 +258,6 @@ export const submitQuiz = async (
       if (isCorrect) score++;
       correctPerQuestion.push(isCorrect);
     } else {
-      // TEXT — case-insensitive comparison
       const isCorrect =
         String(userAnswer.textAnswer ?? userAnswer.answer ?? userAnswer.value ?? '').trim().toLowerCase() ===
         String(correct ?? '').trim().toLowerCase();
@@ -276,7 +266,6 @@ export const submitQuiz = async (
     }
   }
 
-  // Percentage score 0-100
   const percentScore = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
 
   await prisma.quiz.update({
@@ -294,7 +283,6 @@ export const submitQuiz = async (
     },
   });
 
-  // SSE: broadcast quiz result update for leaderboard
   const mod = await getModuleOrThrow(quiz.moduleId);
   sendEvent(mod.courseId, 'quiz_result_updated', {
     quizId,

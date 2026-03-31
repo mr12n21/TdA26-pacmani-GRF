@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { sendEvent, sendStatsEvent } from '../libs/sse.manager';
 import { assertDraftState, assertOwnership, StateTransitionError } from './state-machine.service';
 
-// ── helpers ──────────────────────────────────────────────────────────
 
 async function getCourseOrThrow(courseId: string) {
   const course = await prisma.course.findUnique({ where: { id: courseId } });
@@ -73,14 +72,7 @@ async function acquireCourseOrderLock(courseId: string, tx: any = prisma) {
   await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${courseId}))`;
 }
 
-// ── helpers (exported) ───────────────────────────────────────────────
-
-/**
- * Get or create a default module for a course.
- * Used by backward-compatible flat endpoints (/courses/:id/materials, /courses/:id/quizzes).
- */
 export const getOrCreateDefaultModule = async (courseId: string) => {
-  // Use the first module if it exists
   let mod = await prisma.module.findFirst({
     where: { courseId },
     orderBy: { order: 'asc' },
@@ -101,12 +93,6 @@ export const getOrCreateDefaultModule = async (courseId: string) => {
   return mod;
 };
 
-// ── Module CRUD ──────────────────────────────────────────────────────
-
-/**
- * List modules for a course.
- * If onlyRevealed is true, only revealed modules are returned (student view).
- */
 export const listModules = async (courseId: string, onlyRevealed = false) => {
   await getCourseOrThrow(courseId);
   await normalizeModuleOrders(courseId);
@@ -178,7 +164,6 @@ export const createModule = async (
     throw new StateTransitionError('Module not found after creation.', 404);
   }
 
-  // SSE broadcast
   sendEvent(courseId, 'module_created', {
     moduleId: created.id,
     title: created.title,
@@ -252,7 +237,6 @@ export const updateModule = async (
     throw new StateTransitionError('Module not found after update.', 404);
   }
 
-  // SSE broadcast
   sendEvent(mod.courseId, 'module_updated', {
     moduleId: updated.id,
     title: updated.title,
@@ -276,14 +260,12 @@ export const deleteModule = async (moduleId: string, userId: string, globalRole?
     await normalizeModuleOrders(mod.courseId, tx);
   });
   
-  // SSE broadcast
   sendEvent(mod.courseId, 'module_deleted', { moduleId });
   sendStatsEvent('statistics_updated', { courseId: mod.courseId, source: 'module_deleted', moduleId });
   
   return mod;
 };
 
-// ── Reorder Module ───────────────────────────────────────────────────
 
 export const reorderModule = async (
   courseId: string,
@@ -342,7 +324,6 @@ export const reorderModule = async (
     throw new StateTransitionError('Module not found after reorder.', 404);
   }
 
-  // SSE broadcast
   sendEvent(courseId, 'module_reordered', {
     moduleId: updated.id,
     newOrder: updated.order,
@@ -352,7 +333,6 @@ export const reorderModule = async (
   return updated;
 };
 
-// ── Reveal / Hide (LIVE only) ────────────────────────────────────────
 
 export const revealModule = async (moduleId: string, courseId: string, userId: string, globalRole?: string) => {
   const course = await getCourseOrThrow(courseId);
@@ -376,7 +356,6 @@ export const revealModule = async (moduleId: string, courseId: string, userId: s
     },
   });
 
-  // SSE broadcast to all connected clients
   sendEvent(courseId, 'module_revealed', {
     moduleId: updated.id,
     title: updated.title,

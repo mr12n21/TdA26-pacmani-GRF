@@ -5,7 +5,6 @@ import { getConnectedCount } from '../libs/sse.manager';
 
 const PASSING_SCORE = 60;
 
-// ── helpers ──────────────────────────────────────────────────────────
 
 async function getCourseOrThrow(courseId: string) {
   const course = await prisma.course.findUnique({ where: { id: courseId } });
@@ -160,16 +159,10 @@ export const getCoursesStatsOverview = async (filters: CourseStatsOverviewFilter
   };
 };
 
-// ── Leaderboard ──────────────────────────────────────────────────────
 
-/**
- * Returns a leaderboard for a course: aggregated scores per participant
- * across all quizzes in the course's modules.
- */
 export const getLeaderboard = async (courseId: string) => {
   await getCourseOrThrow(courseId);
 
-  // Get all quiz IDs in this course (through modules)
   const modules = await prisma.module.findMany({
     where: { courseId },
     select: { id: true },
@@ -186,7 +179,6 @@ export const getLeaderboard = async (courseId: string) => {
 
   if (quizIds.length === 0) return [];
 
-  // Aggregate scores per participant
   const results = await prisma.quizResult.groupBy({
     by: ['participantId'],
     where: { quizId: { in: quizIds } },
@@ -196,7 +188,6 @@ export const getLeaderboard = async (courseId: string) => {
     orderBy: { _sum: { score: 'desc' } },
   });
 
-  // Enrich with participant info
   const participantIds = results.map((r) => r.participantId);
   const participants = await prisma.participant.findMany({
     where: { id: { in: participantIds } },
@@ -218,12 +209,6 @@ export const getLeaderboard = async (courseId: string) => {
   });
 };
 
-// ── Student Progress ─────────────────────────────────────────────────
-
-/**
- * Detailed progress for a single participant: all quiz results with
- * module context.
- */
 export const getParticipantProgress = async (courseId: string, participantId: string) => {
   await getCourseOrThrow(courseId);
 
@@ -235,7 +220,6 @@ export const getParticipantProgress = async (courseId: string, participantId: st
     throw new StateTransitionError('Participant not found in this course.', 404);
   }
 
-  // Get all modules with their quizzes
   const modules = await prisma.module.findMany({
     where: { courseId },
     orderBy: { order: 'asc' },
@@ -285,11 +269,6 @@ export const getParticipantProgress = async (courseId: string, participantId: st
   };
 };
 
-// ── Module Statistics ────────────────────────────────────────────────
-
-/**
- * Statistics for a specific module: quiz completion rates, averages.
- */
 export const getModuleStats = async (courseId: string, moduleId: string) => {
   await getCourseOrThrow(courseId);
 
@@ -341,7 +320,6 @@ export const getModuleStats = async (courseId: string, moduleId: string) => {
   };
 };
 
-// ── Course-wide overview ─────────────────────────────────────────────
 
 export const getCourseStats = async (courseId: string) => {
   await getCourseOrThrow(courseId);

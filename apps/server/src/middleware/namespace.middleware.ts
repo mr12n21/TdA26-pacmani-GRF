@@ -3,7 +3,6 @@ import { PrismaClient, MemberStatus, GlobalRole } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Rozšíření Express Request pro namespace kontext
 declare global {
   namespace Express {
     interface Request {
@@ -18,23 +17,8 @@ declare global {
   }
 }
 
-/**
- * Middleware pro extrakci a validaci namespace kontextu.
- * 
- * Extractuje namespaceId z:
- * 1. JWT payload (req.user.activeNamespaceId)
- * 2. Route parametru :namespaceId
- * 3. Query parametru ?ns=
- * 
- * Ověří:
- * - Že namespace existuje a je aktivní
- * - Že uživatel je schválený člen namespace (pokud je přihlášen a není SUPER_ADMIN)
- * 
- * Připojí namespace objekt a namespace role k req.
- */
 export async function namespaceMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
-    // 1. Extrahuj namespaceId z různých zdrojů (priorita: JWT > route param > query)
     let namespaceId: string | undefined;
 
     if (req.user?.activeNamespaceId) {
@@ -49,7 +33,6 @@ export async function namespaceMiddleware(req: Request, res: Response, next: Nex
       return res.status(400).json({ error: 'Namespace context is required' });
     }
 
-    // 2. Načti namespace z DB
     const namespace = await prisma.namespace.findUnique({
       where: { id: namespaceId },
       select: {
@@ -64,11 +47,9 @@ export async function namespaceMiddleware(req: Request, res: Response, next: Nex
       return res.status(404).json({ error: 'Namespace not found' });
     }
 
-    // 3. Pokud je uživatel přihlášen, ověř membership (kromě SUPER_ADMIN)
     if (req.user) {
       const isSuperAdmin = req.user.globalRole === GlobalRole.SUPER_ADMIN;
 
-      // SUPER_ADMIN může přistupovat k libovolnému namespace, ostatní jen k ACTIVE
       if (!isSuperAdmin && namespace.status !== 'ACTIVE') {
         return res.status(403).json({ error: 'Namespace is not active' });
       }
@@ -91,12 +72,10 @@ export async function namespaceMiddleware(req: Request, res: Response, next: Nex
           return res.status(403).json({ error: 'Your membership is not approved yet' });
         }
 
-        // Připoj namespace role k req
         req.namespaceMemberRole = membership.role;
       }
     }
 
-    // 4. Připoj namespace k req
     req.namespace = namespace;
 
     next();
@@ -106,10 +85,6 @@ export async function namespaceMiddleware(req: Request, res: Response, next: Nex
   }
 }
 
-/**
- * Variantní middleware, který nevyžaduje namespace kontext, ale pokud je přítomen, validuje ho.
- * Užitečné pro endpoint, které mohou fungovat s i bez namespace kontextu.
- */
 export async function optionalNamespaceMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
     let namespaceId: string | undefined;
@@ -122,7 +97,6 @@ export async function optionalNamespaceMiddleware(req: Request, res: Response, n
       namespaceId = req.query.ns as string;
     }
 
-    // Pokud není namespace, pokračuj bez něj
     if (!namespaceId) {
       return next();
     }

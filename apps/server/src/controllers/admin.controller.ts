@@ -37,7 +37,6 @@ export const getStats = async (_req: Request, res: Response) => {
   res.json({ totalUsers, totalCourses, activeCourses, totalModules, totalMaterials, totalParticipants, totalQuizSubmissions, totalNamespaces });
 };
 
-// ─── User Management (SUPER_ADMIN) ───────────────────────────────────
 
 export const listUsers = async (req: Request, res: Response) => {
   const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
@@ -135,7 +134,6 @@ export const updateUser = async (req: Request, res: Response) => {
 export const deleteUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
 
-  // Prevent self-deletion
   if (req.user?.id === userId) {
     return res.status(400).json({ message: 'Cannot delete your own account' });
   }
@@ -155,7 +153,6 @@ export const uploadDocument = async (req: Request, res: Response) => {
   const title = req.body.title || null;
   const description = req.body.description || null;
 
-  // Get namespaceId from request context
   const namespaceId = req.namespace?.id || req.user.activeNamespaceId;
   if (!namespaceId) return res.status(400).json({ message: 'Namespace context required' });
 
@@ -199,7 +196,6 @@ export const statsSSEStream = async (req: Request, res: Response) => {
   const user = resolveStatsUser(req);
   if (!user) return res.status(401).json({ message: 'Unauthorized' });
   
-  // Allow SUPER_ADMIN, ADMIN (deprecated), or LECTURER
   const allowed = user.globalRole === 'SUPER_ADMIN' || ['ADMIN', 'LECTURER'].includes(user.role);
   if (!allowed) return res.status(401).json({ message: 'Unauthorized' });
 

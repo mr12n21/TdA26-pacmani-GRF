@@ -3,7 +3,6 @@ import * as namespacesService from '../services/namespaces.service';
 import { MemberStatus, NamespaceRole, NamespaceStatus } from '@prisma/client';
 import { handleControllerError } from './controller-error';
 
-// ─── Namespace CRUD ──────────────────────────────────────────────────
 
 export async function createNamespaceHandler(req: Request, res: Response) {
   try {
@@ -21,12 +20,6 @@ export async function createNamespaceHandler(req: Request, res: Response) {
   }
 }
 
-/**
- * Žádost o vytvoření nové organizace (dostupné pro běžné uživatele)
- * - Vytvoří namespace s PENDING statusem
- * - Uživatel se stává ORG_ADMIN s PENDING statusem
- * - Vyžaduje schválení SUPER_ADMIN
- */
 export async function requestNewOrganizationHandler(req: Request, res: Response) {
   try {
     const { name, slug, description, schoolType, city, country } = req.body;
@@ -111,7 +104,6 @@ export async function deleteNamespaceHandler(req: Request, res: Response) {
   }
 }
 
-// ─── Namespace Members ───────────────────────────────────────────────
 
 export async function listMembersHandler(req: Request, res: Response) {
   try {
@@ -131,7 +123,6 @@ export async function requestMembershipHandler(req: Request, res: Response) {
     const { role } = req.body;
     const userId = req.user!.id;
 
-    // Kontrola, zda už není členem
     const existingMember = await namespacesService.getMemberByUserAndNamespace(userId, namespaceId);
     if (existingMember) {
       return res.status(400).json({ error: 'Already a member or request pending' });
@@ -257,7 +248,6 @@ export async function listNamespaceQuizzesHandler(req: Request, res: Response) {
   }
 }
 
-// ─── Invite Links ────────────────────────────────────────────────────
 
 export async function createInviteLinkHandler(req: Request, res: Response) {
   try {
@@ -308,9 +298,7 @@ export async function deleteInviteLinkHandler(req: Request, res: Response) {
   }
 }
 
-/**
- * Použití invite linku pro připojení k organizaci
- */
+
 export async function joinViaInviteLinkHandler(req: Request, res: Response) {
   try {
     const { token } = req.params;
@@ -327,7 +315,6 @@ export async function joinViaInviteLinkHandler(req: Request, res: Response) {
       return res.status(400).json({ error: validation.error });
     }
 
-    // Zkontroluj, zda už není členem
     const existingMember = await namespacesService.getMemberByUserAndNamespace(
       userId,
       inviteLink.namespaceId
@@ -337,21 +324,18 @@ export async function joinViaInviteLinkHandler(req: Request, res: Response) {
       return res.status(400).json({ error: 'Already a member' });
     }
 
-    // Přidej uživatele jako STUDENT (auto-approved přes invite link)
     const membership = await namespacesService.requestMembership({
       userId,
       namespaceId: inviteLink.namespaceId,
       role: NamespaceRole.STUDENT,
     });
 
-    // Auto-schválení
     const approvedMembership = await namespacesService.updateMembershipStatus(
       membership.id,
       MemberStatus.APPROVED,
       inviteLink.createdById
     );
 
-    // Zvyš počítadlo použití
     await namespacesService.incrementInviteLinkUsage(inviteLink.id);
 
     return res.json({

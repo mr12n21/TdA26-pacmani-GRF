@@ -23,7 +23,7 @@ function generateTokens(
 ) {
   const payload = { 
     id: userId, 
-    role: userRole,  // deprecated
+    role: userRole,
     globalRole,
     activeNamespaceId,
     namespaceMemberRole,
@@ -47,7 +47,6 @@ export const login = async (req: Request, res: Response) => {
   const user = await prisma.user.findFirst({ where: { OR: [{ email: loginIdentifier }, { name: loginIdentifier }] } });
   if (!user || !(await bcrypt.compare(password, user.passwordHash))) return res.status(401).json({ message: 'Invalid credentials' });
 
-  // Načti namespace memberships
   const memberships = await prisma.namespaceMember.findMany({
     where: {
       userId: user.id,
@@ -58,7 +57,6 @@ export const login = async (req: Request, res: Response) => {
     },
   });
 
-  // Pokud má právě jeden namespace, nastav ho jako aktivní
   let activeNamespaceId: string | undefined;
   let namespaceMemberRole: string | undefined;
   
@@ -82,7 +80,7 @@ export const login = async (req: Request, res: Response) => {
       id: user.id,
       email: user.email,
       name: user.name,
-      role: user.role, // deprecated
+      role: user.role,
       globalRole: user.globalRole,
       activeNamespaceId,
       namespaceMemberRole,
@@ -106,18 +104,16 @@ export const register = async (req: Request, res: Response) => {
   const passwordHash = await bcrypt.hash(password, config.bcryptRounds);
   const safeRole = role === 'LECTURER' || role === 'ADMIN' ? role : 'STUDENT';
 
-  // Uživatelé se registrují s globalRole USER (ne SUPER_ADMIN)
   const user = await prisma.user.create({ 
     data: { 
       email, 
       name, 
       passwordHash, 
-      role: safeRole as any,  // deprecated
+      role: safeRole as any,
       globalRole: GlobalRole.USER,
     } 
   });
 
-  // Po registraci nemá uživatel žádný aktivní namespace - musí požádat o připojení
   const { token, refreshToken } = generateTokens(user.id, user.role, user.globalRole);
   
   res.status(201).json({ 
@@ -145,11 +141,9 @@ export const refresh = async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({ where: { id: decoded.id } });
     if (!user) return res.status(401).json({ message: 'User not found' });
 
-    // Try to preserve active namespace from the expired access token
     let activeNamespaceId: string | undefined;
     let namespaceMemberRole: string | undefined;
 
-    // Check if client sent the old access token in Authorization header
     const oldToken = req.headers.authorization?.split(' ')[1];
     if (oldToken) {
       try {
@@ -161,7 +155,6 @@ export const refresh = async (req: Request, res: Response) => {
       } catch { /* ignore decode errors */ }
     }
 
-    // If no active namespace from old token, find latest approved membership
     if (!activeNamespaceId) {
       const memberships = await prisma.namespaceMember.findMany({
         where: { userId: user.id, status: MemberStatus.APPROVED },
@@ -173,7 +166,6 @@ export const refresh = async (req: Request, res: Response) => {
       }
     }
 
-    // Verify the active namespace membership is still valid
     if (activeNamespaceId) {
       const membership = await prisma.namespaceMember.findUnique({
         where: { userId_namespaceId: { userId: user.id, namespaceId: activeNamespaceId } },
@@ -216,7 +208,6 @@ export const me = async (req: Request, res: Response) => {
   
   if (!user) return res.status(404).json({ message: 'User not found' });
 
-  // Přidej informace o namespace memberships
   const memberships = await prisma.namespaceMember.findMany({
     where: {
       userId: user.id,
@@ -255,9 +246,6 @@ export const me = async (req: Request, res: Response) => {
   });
 };
 
-/**
- * Přepnutí aktivního namespace - vygeneruje nový JWT s jiným activeNamespaceId
- */
 export const switchNamespace = async (req: Request, res: Response) => {
   const userInfo = (req as any).user;
   if (!userInfo) return res.status(401).json({ message: 'Not authenticated' });
@@ -270,7 +258,6 @@ export const switchNamespace = async (req: Request, res: Response) => {
   const user = await prisma.user.findUnique({ where: { id: userInfo.id } });
   if (!user) return res.status(404).json({ message: 'User not found' });
 
-  // Resolve namespace: by ID or by name
   let resolvedNamespaceId = namespaceId;
   if (!resolvedNamespaceId && namespaceName) {
     const ns = await prisma.namespace.findFirst({
@@ -286,7 +273,6 @@ export const switchNamespace = async (req: Request, res: Response) => {
     resolvedNamespaceId = ns.id;
   }
 
-  // Ověř, že uživatel je členem namespace
   const membership = await prisma.namespaceMember.findUnique({
     where: {
       userId_namespaceId: {

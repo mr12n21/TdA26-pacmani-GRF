@@ -10,7 +10,6 @@ import {
 } from './state-machine.service';
 import { courseReadySchema } from '../models/schemas';
 
-// ── helpers ──────────────────────────────────────────────────────────
 async function getCourseOrThrow(courseId: string) {
   const course = await prisma.course.findUnique({ where: { id: courseId } });
   if (!course) throw new StateTransitionError('Course not found.', 404);
@@ -23,16 +22,11 @@ function emitStateChange(courseId: string, newState: CourseState, extra?: Record
   sendCourseListEvent('courses_changed', { courseId, source: 'state_changed', state: newState, ...extra });
 }
 
-// ── queries ──────────────────────────────────────────────────────────
 export const getCourseById = async (id: string) => {
   return prisma.course.findUnique({ where: { id } });
 };
 
-/**
- * Return the full course payload with all nested data — designed for
- * offline caching on the frontend.
- * @param onlyRevealed If true, only include revealed modules (student view)
- */
+
 export const getFullCourseData = async (courseId: string, onlyRevealed = false) => {
   const moduleWhere: any = { courseId };
   if (onlyRevealed) moduleWhere.isRevealed = true;

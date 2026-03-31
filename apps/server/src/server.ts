@@ -34,7 +34,6 @@ app.use('/api/courses', coursesRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api', namespacesRouter);
 
-// ── Public session endpoints (no auth required) ──────────────────────
 app.post('/api/session/validate', sessionsCtrl.validateSession);
 app.post('/api/session/join', optionalAuthMiddleware, sessionsCtrl.joinViaSession);
 
@@ -49,7 +48,6 @@ app.get('/api/health', async (req, res) => {
 
 app.use(errorHandler);
 
-// ── Scheduled course auto-start checker (every 30 seconds) ───────────
 const SCHEDULE_CHECK_INTERVAL = 30_000;
 let scheduleTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -64,7 +62,6 @@ function startScheduleChecker() {
   logger.info('Scheduled course auto-start checker started (30s interval)');
 }
 
-// Start the checker when the module loads
 startScheduleChecker();
 
 process.on('SIGTERM', async () => {

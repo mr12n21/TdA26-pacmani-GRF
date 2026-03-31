@@ -9,7 +9,6 @@ function buildFileUrl(filePath: string | null | undefined) {
   return `${MATERIALS_PUBLIC_BASE}/${filename}`;
 }
 
-// ─── Course transformers ─────────────────────────────────────────────
 
 export function toCourseSummary(course: Course) {
   return {
@@ -38,7 +37,6 @@ export function toCourseOverview(course: Course) {
   };
 }
 
-// ─── Module transformers ─────────────────────────────────────────────
 
 type ModuleWithContent = Module & {
   materials?: Material[];
@@ -60,7 +58,6 @@ export function toModuleResponse(mod: ModuleWithContent) {
   };
 }
 
-// ─── Material transformers ───────────────────────────────────────────
 
 export function toMaterialResponse(material: Material) {
   const base = {
@@ -88,7 +85,6 @@ export function toMaterialResponse(material: Material) {
   };
 }
 
-// ─── Quiz transformers ───────────────────────────────────────────────
 
 function mapQuestion(question: Question) {
   let parsedChoices: any = question.choices as any;
@@ -137,7 +133,6 @@ function mapQuestion(question: Question) {
     };
   }
 
-  // TEXT type
   return {
     ...base,
     type: 'text' as const,
@@ -157,7 +152,6 @@ export function toQuizResponse(quiz: Quiz & { questions?: Question[] }) {
   };
 }
 
-// ─── Feed transformers ───────────────────────────────────────────────
 
 export function toFeedItem(post: FeedPost) {
   return {
@@ -170,7 +164,6 @@ export function toFeedItem(post: FeedPost) {
   };
 }
 
-// ─── Full course payload (offline-friendly) ──────────────────────────
 
 type FullCourseData = Course & {
   modules?: ModuleWithContent[];
