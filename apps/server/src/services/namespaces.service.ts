@@ -78,26 +78,20 @@ export async function listNamespaces(userId?: string, globalRole?: string) {
     return [];
   }
 
-  const memberships = await prisma.namespaceMember.findMany({
+  return prisma.namespace.findMany({
     where: {
-      userId,
-      status: MemberStatus.APPROVED,
+      status: NamespaceStatus.ACTIVE,
     },
+    orderBy: { name: 'asc' },
     include: {
-      namespace: {
-        include: {
-          _count: {
-            select: {
-              members: true,
-              courses: true,
-            },
-          },
+      _count: {
+        select: {
+          members: true,
+          courses: true,
         },
       },
     },
   });
-
-  return memberships.map((m: any) => m.namespace);
 }
 
 export async function getNamespaceById(namespaceId: string) {

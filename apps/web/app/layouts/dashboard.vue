@@ -58,6 +58,12 @@ const links = computed<NavigationMenuItem[][]>(() => {
         onSelect: () => { open.value = false }
       },
       {
+        label: 'Organizace',
+        icon: 'i-lucide-building-2',
+        to: '/dashboard/organizations',
+        onSelect: () => { open.value = false }
+      },
+      {
         label: 'Moje kurzy',
         icon: 'i-lucide-book-open',
         to: '/dashboard/courses',
@@ -128,9 +134,9 @@ const searchGroups = computed(() => [{
         <UDashboardSearchButton :collapsed="collapsed" class="bg-default/70 ring-default" />
 
         <!-- Namespace Switcher (only for non-super admins) -->
-        <div v-if="!userStore.isSuperAdmin && userStore.hasActiveNamespace" class="px-3 py-2">
+        <div v-if="!userStore.isSuperAdmin && userStore.availableNamespaces.length > 0" class="px-3 py-2">
           <p v-if="!collapsed" class="text-xs text-gray-500 dark:text-gray-400 mb-2 px-1">
-            Aktivní organizace
+            {{ userStore.hasActiveNamespace ? 'Aktivní organizace' : 'Vyberte organizaci' }}
           </p>
           <NamespaceSwitcher :collapsed="collapsed" />
         </div>

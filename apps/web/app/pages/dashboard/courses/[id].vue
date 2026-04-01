@@ -72,6 +72,19 @@ async function doTransition(action: string, body?: any) {
       courseStore.currentCourse.state = res.state
       if (res.scheduledStart) courseStore.currentCourse.scheduledStart = res.scheduledStart
     }
+
+    if (action === 'start') {
+      toast.add({
+        title: 'Kurz spuštěn',
+        description: res.session?.code
+          ? `Relace je připravená. Kód pro studenty: ${res.session.code}`
+          : 'Otevírám relaci pro studenty.',
+        color: 'success'
+      })
+      await navigateTo(`/dashboard/session/${courseId}`)
+      return
+    }
+
     toast.add({ title: 'Stav změněn', description: `Kurz je nyní: ${STATE_META[res.state]?.label || res.state}`, color: 'success' })
   } catch (err: any) {
     toast.add({ title: 'Chyba', description: err?.data?.message || 'Nepodařilo se změnit stav', color: 'error' })

@@ -13,6 +13,9 @@ useSeoMeta({
 const userStore = useUserStore()
 const courseStore = useCourseStore()
 const loading = ref(true)
+const activeMembership = computed(() =>
+  userStore.availableNamespaces.find(membership => membership.namespace.id === userStore.activeNamespace?.id) ?? null
+)
 
 onMounted(async () => {
   try {
@@ -51,6 +54,36 @@ onMounted(async () => {
             Centrální rozhraní pro správu kurzů, modulů a statistik platformy.
           </p>
         </header>
+
+        <section v-if="!userStore.isSuperAdmin" class="namespace-banner">
+          <div>
+            <p class="namespace-kicker">Organizace</p>
+            <h2 class="namespace-title">
+              {{ userStore.activeNamespace?.name || 'Není vybraná aktivní organizace' }}
+            </h2>
+            <p class="namespace-copy">
+              <template v-if="activeMembership">
+                Pracujete jako {{ activeMembership.role === 'ORG_ADMIN' ? 'správce organizace' : activeMembership.role === 'LECTURER' ? 'lektor' : 'student' }}.
+                Přepnutí organizace i žádosti o nové členství najdete na jednom místě.
+              </template>
+              <template v-else>
+                Vyberte aktivní organizaci nebo odešlete žádost o vstup do další organizace.
+              </template>
+            </p>
+          </div>
+
+          <div class="namespace-actions">
+            <TdaButton
+              icon="i-lucide-building-2"
+              :to="userStore.availableNamespaces.length > 1 ? '/auth/select-namespace' : '/dashboard/organizations'"
+            >
+              {{ userStore.hasActiveNamespace ? 'Přepnout organizaci' : 'Vybrat organizaci' }}
+            </TdaButton>
+            <TdaButton variant="outline" icon="i-lucide-send" to="/dashboard/organizations">
+              Žádost do organizace
+            </TdaButton>
+          </div>
+        </section>
 
         <DashboardStats class="mb-6" />
 
@@ -128,6 +161,47 @@ onMounted(async () => {
 
 .admin-head {
   margin-bottom: 1.25rem;
+}
+
+.namespace-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid color-mix(in oklab, #0070BB 22%, var(--ui-border));
+  border-radius: 1rem;
+  padding: 1rem 1.1rem;
+  background:
+    radial-gradient(circle at top right, color-mix(in oklab, #49B3B4 24%, transparent) 0, transparent 35%),
+    linear-gradient(135deg, color-mix(in oklab, var(--ui-bg-elevated) 82%, #0070BB 18%) 0%, var(--ui-bg-elevated) 100%);
+}
+
+.namespace-kicker {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ui-text-dimmed);
+}
+
+.namespace-title {
+  margin: 0 0 0.3rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.namespace-copy {
+  margin: 0;
+  max-width: 42rem;
+  color: var(--ui-text-muted);
+}
+
+.namespace-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .admin-title {
@@ -233,6 +307,15 @@ onMounted(async () => {
 
   .admin-title {
     font-size: 1.35rem;
+  }
+
+  .namespace-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .namespace-actions {
+    width: 100%;
   }
 }
 </style>

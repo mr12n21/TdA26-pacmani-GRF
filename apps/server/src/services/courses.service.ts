@@ -9,6 +9,7 @@ import {
   StateTransitionError,
 } from './state-machine.service';
 import { courseReadySchema } from '../models/schemas';
+import { createSessionCode, deactivateAllForCourse, getActiveSessionCode } from './sessions.service';
 
 async function getCourseOrThrow(courseId: string) {
   const course = await prisma.course.findUnique({ where: { id: courseId } });
@@ -20,6 +21,20 @@ function emitStateChange(courseId: string, newState: CourseState, extra?: Record
   sendEvent(courseId, 'state_changed', { courseId, state: newState, ...extra });
   sendStatsEvent('statistics_updated', { courseId, source: 'state_changed', state: newState, ...extra });
   sendCourseListEvent('courses_changed', { courseId, source: 'state_changed', state: newState, ...extra });
+}
+
+async function ensureSessionForLiveCourse(courseId: string, createdById: string) {
+  const activeSession = await getActiveSessionCode(courseId);
+
+  if (activeSession && (!activeSession.expiresAt || activeSession.expiresAt > new Date())) {
+    return activeSession;
+  }
+
+  if (activeSession) {
+    await deactivateAllForCourse(courseId);
+  }
+
+  return createSessionCode(courseId, createdById);
 }
 
 export const getCourseById = async (id: string) => {
@@ -144,8 +159,9 @@ export const startCourse = async (courseId: string, userId: string, globalRole?:
     where: { id: courseId },
     data: { state: CourseState.LIVE, scheduledStart: null },
   });
+  const sessionCode = await ensureSessionForLiveCourse(courseId, userId);
   emitStateChange(courseId, CourseState.LIVE);
-  return updated;
+  return { course: updated, sessionCode };
 };
 
 /**
@@ -159,6 +175,7 @@ export const autoStartCourse = async (courseId: string) => {
     where: { id: courseId },
     data: { state: CourseState.LIVE, scheduledStart: null },
   });
+  await ensureSessionForLiveCourse(courseId, course.ownerId);
   emitStateChange(courseId, CourseState.LIVE, { autoStarted: true });
   return updated;
 };
@@ -207,6 +224,7 @@ export const archiveCourse = async (courseId: string, userId: string, globalRole
     where: { id: courseId },
     data: { state: CourseState.ARCHIVED },
   });
+  await deactivateAllForCourse(courseId);
   emitStateChange(courseId, CourseState.ARCHIVED);
   return updated;
 };

@@ -16,7 +16,7 @@ const search = ref('')
 async function loadCourses() {
   loading.value = true
   try {
-    const data = await get<CourseSummary[]>('/courses')
+    const data = await get<CourseSummary[]>('/courses?scope=public')
     courses.value = data || []
   } catch (err: any) {
     error.value = err?.data?.message || 'Nepodařilo se načíst kurzy'

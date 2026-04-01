@@ -15,11 +15,42 @@ type AuthUser = { id: string; role: string };
 
 
 export const listCourses = async (req: Request, res: Response) => {
-  const { state } = req.query;
+  const { state, scope } = req.query;
   const where: any = {};
-  if (state && typeof state === 'string') {
-    where.state = state.toUpperCase();
+
+  const requestedState = typeof state === 'string' ? state.toUpperCase() : undefined;
+  const publicStates = [CourseState.SCHEDULED, CourseState.LIVE, CourseState.PAUSED, CourseState.ARCHIVED];
+  const publicStateSet = new Set(publicStates);
+
+  if (scope === 'public') {
+    if (requestedState) {
+      if (!publicStateSet.has(requestedState as any)) {
+        return res.json([]);
+      }
+      where.state = requestedState;
+    } else {
+      where.state = { in: publicStates };
+    }
+  } else if (req.user?.globalRole === 'SUPER_ADMIN') {
+    if (requestedState) {
+      where.state = requestedState;
+    }
+  } else if (req.user?.activeNamespaceId) {
+    if (requestedState) {
+      where.state = requestedState;
+    }
+    where.namespaceId = req.user.activeNamespaceId;
+  } else if (req.user) {
+    return res.json([]);
+  } else if (requestedState) {
+    if (!publicStateSet.has(requestedState as any)) {
+      return res.json([]);
+    }
+    where.state = requestedState;
+  } else {
+    where.state = { in: publicStates };
   }
+
   const courses = await prisma.course.findMany({
     where,
     orderBy: { createdAt: 'desc' },
@@ -222,7 +253,19 @@ export const startCourseHandler = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
     const result = await coursesService.startCourse(courseId, req.user!.id, req.user!.globalRole);
-    res.json({ success: true, state: result.state });
+    res.json({
+      success: true,
+      state: result.course.state,
+      session: result.sessionCode
+        ? {
+            id: result.sessionCode.id,
+            code: result.sessionCode.code,
+            isActive: result.sessionCode.isActive,
+            expiresAt: result.sessionCode.expiresAt,
+            createdAt: result.sessionCode.createdAt,
+          }
+        : null,
+    });
   } catch (err) {
     handleControllerError(res, err);
   }

@@ -7,6 +7,11 @@
         <p class="text-gray-600 dark:text-gray-400 text-lg">
           Jste členem více organizací. Vyberte si, se kterou chcete pracovat.
         </p>
+        <div class="mt-5 flex justify-center">
+          <UButton color="neutral" variant="outline" icon="i-lucide-send" to="/dashboard/organizations">
+            Požádat o vstup do další organizace
+          </UButton>
+        </div>
       </div>
 
       <!-- Loading -->
@@ -28,8 +33,8 @@
               <UIcon name="i-heroicons-building-office" class="w-7 h-7 text-primary-600 dark:text-primary-400" />
             </div>
             <UBadge
-              :color="getRoleColor(membership.member.role)"
-              :label="getRoleLabel(membership.member.role)"
+              :color="getRoleColor(membership.role)"
+              :label="getRoleLabel(membership.role)"
               size="md"
             />
           </div>
@@ -61,14 +66,19 @@
         <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
           Kontaktujte správce organizace, aby vás přidal. Nebo se můžete připojit přes pozvánku od lektora.
         </p>
-        <UButton
-          color="gray"
-          variant="outline"
-          size="lg"
-          @click="userStore.logout()"
-        >
-          Odhlásit se
-        </UButton>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <UButton color="primary" size="lg" to="/auth/onboarding">
+            Požádat o vstup do organizace
+          </UButton>
+          <UButton
+            color="gray"
+            variant="outline"
+            size="lg"
+            @click="userStore.logout()"
+          >
+            Odhlásit se
+          </UButton>
+        </div>
       </div>
     </div>
   </div>
@@ -100,7 +110,7 @@ onMounted(async () => {
 
 async function selectNamespace(ns: Namespace) {
   try {
-    await userStore.switchNamespace(ns.name)
+    await userStore.switchNamespace(ns.id)
     navigateTo('/dashboard')
   } catch (err) {
     console.error('Failed to select namespace:', err)

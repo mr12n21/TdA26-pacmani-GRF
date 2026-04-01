@@ -25,7 +25,7 @@ const upload = multer({ storage, limits: { fileSize: 30 * 1024 * 1024 } });
 
 const lecturerOnly = [authMiddleware, rolesMiddleware(['LECTURER', 'ADMIN'])];
 
-router.get('/', coursesCtrl.listCourses);
+router.get('/', optionalAuthMiddleware, coursesCtrl.listCourses);
 router.get('/stream', coursesCtrl.coursesListSSEStream);
 router.get('/:courseId', optionalAuthMiddleware, coursesCtrl.getCourse);
 router.get('/:courseId/overview', optionalAuthMiddleware, coursesCtrl.getCourseOverview);
